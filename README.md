@@ -21,7 +21,7 @@ Full stack job search portal based on Spring boot and React
 2. The applicant will be allowed to apply for the selected post after
    logging to the system.
 3. Registration screen should be there for new users
-4. Company users will login to the system to post advertisements
+4. Company users will login to the system to post jobs
    for various job specifications.
 5. Users can upload their resumes and can update profile.
 6. E-mail notification should be sent to the applicant, company
@@ -53,7 +53,7 @@ Full stack job search portal based on Spring boot and React
 a) Login & Registration
 b) Post Resume
 c) Apply Jobs
-d) Post Job Ads
+d) Post Jobs by company
 e) Track the status
 f) E-mail Alerts
 
