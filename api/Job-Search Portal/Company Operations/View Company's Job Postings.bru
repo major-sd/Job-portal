@@ -1,0 +1,15 @@
+meta {
+  name: View Company's Job Postings
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8080/api/jobs/company
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZWNoY29ycEBleGFtcGxlLmNvbSIsImlkIjoxMiwicm9sZSI6IkNPTVBBTlkiLCJpYXQiOjE3NDc0OTAyNTksImV4cCI6MTc0NzU3NjY1OX0.T6Dvln8HPa5bfcb5-ZK3NDE0k7wXS7k_fXMWymqJCLXSuFYlUkEsmIEcP5amAlCj4EQ6xyxNFgvzS5DPLS9w2g
+}

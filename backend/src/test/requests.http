@@ -105,8 +105,8 @@ Content-Type: application/json
 
 > {% client.global.set("applicant_token", response.body.token); %}
 
-### Login as Admin
-# @name loginAdmin
+### Admin Login (Get Token)
+# @name adminLogin
 POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
@@ -115,7 +115,9 @@ Content-Type: application/json
     "password": "admin123"
 }
 
-> {% client.global.set("admin_token", response.body.token); %}
+> {%
+    client.global.set("admin_token", response.body.token);
+%}
 
 #####################################################
 ### 3. Company Operations
@@ -182,8 +184,8 @@ Content-Type: application/pdf
 GET http://localhost:8080/api/applicant/jobs
 Authorization: Bearer {{applicant_token}}
 
-### Apply for First Job
-POST http://localhost:8080/api/applicant/apply/1
+### Apply for a Job
+POST http://localhost:8080/api/applicant/apply/{{job_id}}
 Content-Type: application/json
 Authorization: Bearer {{applicant_token}}
 
@@ -203,7 +205,48 @@ Authorization: Bearer {{applicant_token}}
 GET http://localhost:8080/api/jobs/1/applications
 Authorization: Bearer {{company_token}}
 
-### Update Application Status
+### View All Applications with Status for a Job
+GET http://localhost:8080/api/jobs/1/applications
+Authorization: Bearer {{company_token}}
+
+# Response will include:
+# [
+#   {
+#     "id": 1,
+#     "applicant": {
+#       "id": 2,
+#       "name": "John Developer",
+#       "email": "john@example.com"
+#     },
+#     "resumeUrl": "/api/applicant/resume/1/resume.pdf",
+#     "status": "REVIEWING",
+#     "appliedAt": "2024-03-20T10:30:00"
+#   },
+#   {
+#     "id": 2,
+#     "applicant": {
+#       "id": 3,
+#       "name": "Jane Developer",
+#       "email": "jane@example.com"
+#     },
+#     "resumeUrl": "/api/applicant/resume/2/resume.pdf",
+#     "status": "PENDING",
+#     "appliedAt": "2024-03-21T14:15:00"
+#   }
+# ]
+
+### Test Company-Only Access for Application Status Updates ###
+
+### Try to update application status as applicant (should fail)
+PUT http://localhost:8080/api/jobs/applications/1
+Content-Type: application/json
+Authorization: Bearer {{applicant_token}}
+
+{
+    "status": "REVIEWING"
+}
+
+### Update application status as company (should succeed)
 PUT http://localhost:8080/api/jobs/applications/1
 Content-Type: application/json
 Authorization: Bearer {{company_token}}
@@ -216,21 +259,85 @@ Authorization: Bearer {{company_token}}
 ### 6. Admin Operations
 #####################################################
 
-### Get All Users
-GET http://localhost:8080/api/admin/users
-Authorization: Bearer {{admin_token}}
+### Admin API Requests
+@baseUrl = http://localhost:8080/api/admin
+@adminToken = your_admin_jwt_token_here
 
-### Get All Jobs
-GET http://localhost:8080/api/admin/jobs
-Authorization: Bearer {{admin_token}}
+### User Management
 
-### Get All Applications
-GET http://localhost:8080/api/admin/applications
-Authorization: Bearer {{admin_token}}
+# Get all users
+GET {{baseUrl}}/users
+Authorization: Bearer {{adminToken}}
 
-### Get System Statistics
-GET http://localhost:8080/api/admin/stats
-Authorization: Bearer {{admin_token}}
+# Get users by role (APPLICANT, COMPANY, ADMIN)
+GET {{baseUrl}}/users?role=APPLICANT
+Authorization: Bearer {{adminToken}}
+
+# Get specific user
+GET {{baseUrl}}/users/1
+Authorization: Bearer {{adminToken}}
+
+# Update user status (activate/deactivate)----deactivate users cant access system
+PUT {{baseUrl}}/users/1/status?active=false
+Authorization: Bearer {{adminToken}}
+
+# Delete user
+DELETE {{baseUrl}}/users/1
+Authorization: Bearer {{adminToken}}
+
+### Job Management
+
+# Get all jobs
+GET {{baseUrl}}/jobs
+Authorization: Bearer {{adminToken}}
+
+# Get active jobs only
+GET {{baseUrl}}/jobs?active=true
+Authorization: Bearer {{adminToken}}
+
+# Update job status
+PUT {{baseUrl}}/jobs/1/status?active=false
+Authorization: Bearer {{adminToken}}
+
+# Delete job
+DELETE {{baseUrl}}/jobs/1
+Authorization: Bearer {{adminToken}}
+
+### Application Management
+
+# Get all applications
+GET {{baseUrl}}/applications
+Authorization: Bearer {{adminToken}}
+
+# Get applications by status
+GET {{baseUrl}}/applications?status=PENDING
+Authorization: Bearer {{adminToken}}
+
+# Update application status
+PUT {{baseUrl}}/applications/1/status?status=ACCEPTED
+Authorization: Bearer {{adminToken}}
+
+# Delete application
+DELETE {{baseUrl}}/applications/1
+Authorization: Bearer {{adminToken}}
+
+## User Management:
+#   List/filter users
+#   Get specific user
+#   Update user status
+#   Delete user
+## Job Management:
+#   List/filter jobs
+#   Update job status
+#   Delete job
+## Application Management:
+#   List/filter applications
+#   Update application status
+#   Delete application   
+
+
+
+
 
 #####################################################
 ### Testing Notes:
@@ -263,4 +370,33 @@ Authorization: Bearer {{admin_token}}
 #      * Application submission
 #      * Application status changes
 #      * Account registration
-#    - Check spam folder during testing 
+#    - Check spam folder during testing
+
+### View All Jobs (Public - No Auth Required)
+GET http://localhost:8080/api/jobs
+
+### View All Jobs with Filters (Public - No Auth Required)
+GET http://localhost:8080/api/jobs?location=San Francisco&title=Software Engineer&salaryRange=120000-150000
+
+### View Applications for a Specific Job (Company Only)
+GET http://localhost:8080/api/jobs/1/applications
+Authorization: Bearer {{company_token}}
+
+# Response will include:
+# [
+#   {
+#     "id": 1,
+#     "applicant": {
+#       "id": 2,
+#       "name": "John Developer",
+#       "email": "john@example.com"
+#     },
+#     "resumeUrl": "/api/applicant/resume/1/resume.pdf",
+#     "status": "REVIEWING",
+#     "appliedAt": "2024-03-20T10:30:00"
+#   }
+# ]
+
+### View Applications for Another Job (Company Only)
+GET http://localhost:8080/api/jobs/2/applications
+Authorization: Bearer {{company_token}} 

@@ -1,6 +1,8 @@
 package com.jobportal.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.jobportal.backend.enums.Role;
+
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -28,6 +30,9 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(nullable = false)
+    private boolean active = true;  // Default to active when user is created
+
     @JsonManagedReference
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private CompanyProfile companyProfile;
@@ -39,6 +44,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.role = role;
+        this.active = true;
     }
 
     // ——— Getters and Setters ———
@@ -93,5 +99,13 @@ public class User {
 
     public void setCompanyProfile(CompanyProfile companyProfile) {
         this.companyProfile = companyProfile;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

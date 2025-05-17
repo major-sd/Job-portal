@@ -1,0 +1,15 @@
+meta {
+  name: View all Job Applications of a Company
+  type: http
+  seq: 7
+}
+
+get {
+  url: http://localhost:8080/api/jobs/1/applications
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZWNoY29ycEBleGFtcGxlLmNvbSIsImlkIjoxMiwicm9sZSI6IkNPTVBBTlkiLCJpYXQiOjE3NDc1MDMwNTAsImV4cCI6MTc0NzU4OTQ1MH0.7onZd2xqQMfCskFXaF3n55zCntnw6fjO-vlG-RU3wq33Bv_mQLYLHQ8Z6OYQ-8Cq1oK_woddt3uwsnMjFcbqhw"
+}

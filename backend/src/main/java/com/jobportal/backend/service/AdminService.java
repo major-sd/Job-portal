@@ -1,24 +1,28 @@
 package com.jobportal.backend.service;
 
 import com.jobportal.backend.entity.User;
+import com.jobportal.backend.enums.Role;
 import com.jobportal.backend.entity.Job;
 import com.jobportal.backend.entity.Application;
-import com.jobportal.backend.entity.Role;
+import com.jobportal.backend.enums.ApplicationStatus;
 import com.jobportal.backend.repository.UserRepository;
 import com.jobportal.backend.repository.JobRepository;
 import com.jobportal.backend.repository.ApplicationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.ArrayList;
+import java.time.LocalDateTime;
 
 @Service
 public class AdminService {
+    private static final Logger logger = LoggerFactory.getLogger(AdminService.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -29,20 +33,19 @@ public class AdminService {
     @Autowired
     private ApplicationRepository applicationRepository;
 
-    // Get all users, optionally filtered by role
-    public List<User> getAllUsers(String role) {
+    // User Management Methods
+    public List<User> getAllUsers(String role, boolean includeInactive) {
         if (role != null) {
-            return userRepository.findByRole(Role.valueOf(role.toUpperCase()));
+            Role roleEnum = Role.valueOf(role.toUpperCase());
+            return userRepository.findByRole(roleEnum);
         }
         return userRepository.findAll();
     }
 
-    // Get user by ID
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
-    // Delete user
     @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
@@ -64,59 +67,110 @@ public class AdminService {
         userRepository.delete(user);
     }
 
-    // Get all jobs
-    public List<Job> getAllJobs(Boolean active) {
+    @Transactional
+    public User updateUserStatus(Long id, boolean active) {
+        logger.debug("Updating user status. UserId: {}, active: {}", id, active);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Don't allow deactivating the last admin
+        if (!active && user.getRole() == Role.ADMIN) {
+            long adminCount = userRepository.countByRole(Role.ADMIN);
+            if (adminCount <= 1) {
+                throw new RuntimeException("Cannot deactivate the last admin user");
+            }
+        }
+        
+        user.setActive(active);
+        return userRepository.save(user);
+    }
+
+    // Job Management Methods
+    public List<Job> getAllJobs(Boolean active, boolean includeExpired) {
         if (active != null) {
-            return jobRepository.findByIsActiveTrue();
+            return jobRepository.findByIsActive(active);
         }
         return jobRepository.findAll();
     }
 
-    // Get all applications
-    public List<Application> getAllApplications(String status) {
+    @Transactional
+    public Job updateJobStatus(Long id, boolean active) {
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+        jobRepository.updateJobActiveStatus(job.getId(), active);
+        return jobRepository.findById(id).get();
+    }
+
+    @Transactional
+    public void deleteJob(Long id) {
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+        // Delete all applications for this job first
+        applicationRepository.deleteByJobId(id);
+        jobRepository.delete(job);
+    }
+
+    // Application Management Methods
+    public List<Application> getAllApplications(String status, boolean includeArchived) {
         if (status != null) {
-            return applicationRepository.findByStatus(status.toUpperCase());
+            try {
+                ApplicationStatus appStatus = ApplicationStatus.valueOf(status.toUpperCase());
+                return applicationRepository.findByStatus(appStatus);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid application status: " + status);
+            }
         }
         return applicationRepository.findAll();
     }
 
-    // Update user status
     @Transactional
-    public User updateUserStatus(Long id, boolean active) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
-        // If deactivating a company, also deactivate their jobs
-        if (!active && user.getRole() == Role.COMPANY) {
-            List<Job> jobs = jobRepository.findByCompanyId(id);
-            jobs.forEach(job -> job.setActive(false));
-            jobRepository.saveAll(jobs);
+    public Application updateApplicationStatus(Long id, String status) {
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+        try {
+            ApplicationStatus appStatus = ApplicationStatus.valueOf(status.toUpperCase());
+            application.setStatus(appStatus);
+            return applicationRepository.save(application);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid application status: " + status);
         }
-        
-        // You might want to add an 'active' field to User entity
-        // For now, we'll just return the user
-        return user;
     }
 
-    // Get system statistics
-    public Map<String, Object> getSystemStats() {
-        Map<String, Object> stats = new HashMap<>();
-        
-        // User statistics
-        stats.put("totalUsers", userRepository.count());
-        stats.put("totalCompanies", userRepository.countByRole(Role.COMPANY));
-        stats.put("totalApplicants", userRepository.countByRole(Role.APPLICANT));
-        
-        // Job statistics
-        stats.put("totalJobs", jobRepository.count());
-        stats.put("activeJobs", jobRepository.countByIsActiveTrue());
-        
-        // Application statistics
-        stats.put("totalApplications", applicationRepository.count());
-        stats.put("pendingApplications", applicationRepository.countByStatus("PENDING"));
-        stats.put("acceptedApplications", applicationRepository.countByStatus("ACCEPTED"));
-        stats.put("rejectedApplications", applicationRepository.countByStatus("REJECTED"));
-        
-        return stats;
+    @Transactional
+    public void deleteApplication(Long id) {
+        applicationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+        applicationRepository.deleteById(id);
+    }
+
+    // Bulk Operations
+    @Transactional
+    public List<User> bulkUpdateUserStatus(Map<Long, Boolean> userStatusMap) {
+        List<User> updatedUsers = new ArrayList<>();
+        for (Map.Entry<Long, Boolean> entry : userStatusMap.entrySet()) {
+            try {
+                User updatedUser = updateUserStatus(entry.getKey(), entry.getValue());
+                updatedUsers.add(updatedUser);
+            } catch (RuntimeException e) {
+                // Log error and continue with next user
+                logger.error("Error updating user {}: {}", entry.getKey(), e.getMessage());
+            }
+        }
+        return updatedUsers;
+    }
+
+    @Transactional
+    public List<Job> bulkUpdateJobStatus(Map<Long, Boolean> jobStatusMap) {
+        List<Job> updatedJobs = new ArrayList<>();
+        for (Map.Entry<Long, Boolean> entry : jobStatusMap.entrySet()) {
+            try {
+                Job updatedJob = updateJobStatus(entry.getKey(), entry.getValue());
+                updatedJobs.add(updatedJob);
+            } catch (RuntimeException e) {
+                // Log error and continue with next job
+                logger.error("Error updating job {}: {}", entry.getKey(), e.getMessage());
+            }
+        }
+        return updatedJobs;
     }
 } 

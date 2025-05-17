@@ -1,7 +1,7 @@
 package com.jobportal.backend.controller;
 
 import com.jobportal.backend.entity.CompanyProfile;
-import com.jobportal.backend.entity.Role;
+import com.jobportal.backend.enums.Role;
 import com.jobportal.backend.security.CustomUserDetails;
 import com.jobportal.backend.service.CompanyProfileService;
 import org.springframework.beans.factory.annotation.Autowired;

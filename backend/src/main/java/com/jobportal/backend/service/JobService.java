@@ -3,17 +3,21 @@ package com.jobportal.backend.service;
 import com.jobportal.backend.entity.Job;
 import com.jobportal.backend.entity.User;
 import com.jobportal.backend.entity.Application;
+import com.jobportal.backend.enums.ApplicationStatus;
 import com.jobportal.backend.repository.JobRepository;
 import com.jobportal.backend.repository.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class JobService {
+    private static final Logger logger = LoggerFactory.getLogger(JobService.class);
 
     @Autowired
     private JobRepository jobRepository;
@@ -92,15 +96,28 @@ public class JobService {
 
     // Update application status
     @Transactional
-    public Application updateApplicationStatus(Long companyId, Long applicationId, String status) {
+    public Application updateApplicationStatus(Long companyId, Long applicationId, ApplicationStatus status) {
+        logger.info("Attempting to update application {} status to {} by company {}", applicationId, status, companyId);
+        
         Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("Application not found"));
+                .orElseThrow(() -> {
+                    logger.error("Application {} not found", applicationId);
+                    return new RuntimeException("Application not found");
+                });
+
+        logger.info("Found application. Job company ID: {}, Requesting company ID: {}", 
+                   application.getJob().getCompany().getId(), companyId);
 
         if (!application.getJob().getCompany().getId().equals(companyId)) {
+            logger.error("Company {} not authorized to update application {}", companyId, applicationId);
             throw new RuntimeException("Not authorized to update this application");
         }
 
+        logger.info("Updating application status from {} to {}", application.getStatus(), status);
         application.setStatus(status);
-        return applicationRepository.save(application);
+        Application savedApplication = applicationRepository.save(application);
+        logger.info("Successfully updated application status");
+        
+        return savedApplication;
     }
 } 

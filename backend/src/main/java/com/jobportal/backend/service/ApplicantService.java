@@ -3,6 +3,7 @@ package com.jobportal.backend.service;
 import com.jobportal.backend.entity.Application;
 import com.jobportal.backend.entity.Job;
 import com.jobportal.backend.entity.User;
+import com.jobportal.backend.enums.ApplicationStatus;
 import com.jobportal.backend.repository.ApplicationRepository;
 import com.jobportal.backend.repository.JobRepository;
 import com.jobportal.backend.repository.UserRepository;
@@ -119,7 +120,7 @@ public class ApplicantService {
         application.setJob(job);
         application.setApplicant(applicant);
         application.setResumeUrl(resumeUrl);
-        application.setStatus("PENDING");
+        application.setStatus(ApplicationStatus.PENDING);
 
         return applicationRepository.save(application);
     }

@@ -1,5 +1,6 @@
 package com.jobportal.backend.dto;
-import com.jobportal.backend.entity.Role;
+import com.jobportal.backend.enums.Role;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -4,11 +4,14 @@ import com.jobportal.backend.entity.Job;
 import com.jobportal.backend.entity.Application;
 import com.jobportal.backend.security.CustomUserDetails;
 import com.jobportal.backend.service.JobService;
+import com.jobportal.backend.dto.ApplicationStatusDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/jobs")
 public class JobController {
+    private static final Logger logger = LoggerFactory.getLogger(JobController.class);
 
     @Autowired
     private JobService jobService;
@@ -106,12 +110,18 @@ public class JobController {
     public ResponseEntity<?> updateApplicationStatus(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long applicationId,
-            @RequestBody String status) {
+            @Valid @RequestBody ApplicationStatusDTO statusDTO) {
         try {
+            logger.info("Received status update request for application {}: {}", applicationId, statusDTO.getStatus());
+            logger.info("Company ID from token: {}", userDetails.getUser().getId());
+            
             Application application = jobService.updateApplicationStatus(
-                userDetails.getUser().getId(), applicationId, status);
+                userDetails.getUser().getId(), applicationId, statusDTO.getStatus());
+            
+            logger.info("Successfully updated application status");
             return ResponseEntity.ok(application);
         } catch (RuntimeException e) {
+            logger.error("Error updating application status: {}", e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

@@ -1,4 +1,4 @@
-package com.jobportal.backend.entity;
+package com.jobportal.backend.enums;
 
 public enum Role {
     APPLICANT,

@@ -1,0 +1,61 @@
+### Admin API Requests
+@baseUrl = http://localhost:8080/api/admin
+@adminToken = your_admin_jwt_token_here
+
+### User Management
+
+# Get all users
+GET {{baseUrl}}/users
+Authorization: Bearer {{adminToken}}
+
+# Get users by role (APPLICANT, COMPANY, ADMIN)
+GET {{baseUrl}}/users?role=APPLICANT
+Authorization: Bearer {{adminToken}}
+
+# Get specific user
+GET {{baseUrl}}/users/1
+Authorization: Bearer {{adminToken}}
+
+# Update user status (activate/deactivate)
+PUT {{baseUrl}}/users/1/status?active=false
+Authorization: Bearer {{adminToken}}
+
+# Delete user
+DELETE {{baseUrl}}/users/1
+Authorization: Bearer {{adminToken}}
+
+### Job Management
+
+# Get all jobs
+GET {{baseUrl}}/jobs
+Authorization: Bearer {{adminToken}}
+
+# Get active jobs only
+GET {{baseUrl}}/jobs?active=true
+Authorization: Bearer {{adminToken}}
+
+# Update job status
+PUT {{baseUrl}}/jobs/1/status?active=false
+Authorization: Bearer {{adminToken}}
+
+# Delete job
+DELETE {{baseUrl}}/jobs/1
+Authorization: Bearer {{adminToken}}
+
+### Application Management
+
+# Get all applications
+GET {{baseUrl}}/applications
+Authorization: Bearer {{adminToken}}
+
+# Get applications by status
+GET {{baseUrl}}/applications?status=PENDING
+Authorization: Bearer {{adminToken}}
+
+# Update application status
+PUT {{baseUrl}}/applications/1/status?status=ACCEPTED
+Authorization: Bearer {{adminToken}}
+
+# Delete application
+DELETE {{baseUrl}}/applications/1
+Authorization: Bearer {{adminToken}} 

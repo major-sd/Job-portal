@@ -8,7 +8,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,6 +27,8 @@ import java.util.Optional;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -38,26 +43,48 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String jwt = parseJwt(request);
+            
             if (jwt != null && jwtUtils.validateToken(jwt)) {
                 String email = jwtUtils.getEmailFromToken(jwt);
+                String role = jwtUtils.getRoleFromToken(jwt);
+                logger.debug("Processing authentication for user: {}", email);
+                
                 Optional<User> userOpt = userRepository.findByEmail(email);
                 if (userOpt.isPresent()) {
                     User user = userOpt.get();
-                    CustomUserDetails userDetails = new CustomUserDetails(user);
+                    String expectedRole = "ROLE_" + user.getRole().name();
+                    
+                    if (!user.isActive()) {
+                        logger.warn("User {} is deactivated, denying access", email);
+                        response.setStatus(HttpStatus.FORBIDDEN.value());
+                        response.getWriter().write("Account is deactivated");
+                        return;
+                    }
+                    
+                    if (!expectedRole.equals(role)) {
+                        logger.warn("Token role does not match user role");
+                        response.setStatus(HttpStatus.FORBIDDEN.value());
+                        return;
+                    }
+                    
+                    SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
-                                    userDetails,
+                                    new CustomUserDetails(user),
                                     null,
-                                    userDetails.getAuthorities()
+                                    Collections.singletonList(authority)
                             );
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    logger.debug("Authentication successful for user: {}", email);
+                } else {
+                    logger.warn("User not found for email: {}", email);
                 }
             }
         } catch (Exception ex) {
-            logger.error("Cannot set user authentication: {}", ex);
+            logger.error("Cannot set user authentication", ex);
         }
 
         filterChain.doFilter(request, response);

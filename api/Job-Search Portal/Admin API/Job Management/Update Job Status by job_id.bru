@@ -1,0 +1,15 @@
+meta {
+  name: Update Job Status by job_id
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:8080/api/admin/jobs/1/status?active=false
+  body: none
+  auth: inherit
+}
+
+params:query {
+  active: false
+}

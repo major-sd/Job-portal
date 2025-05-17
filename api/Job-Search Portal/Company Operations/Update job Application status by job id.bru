@@ -1,0 +1,21 @@
+meta {
+  name: Update job Application status by job id
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8080/api/jobs/applications/2
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZWNoY29ycEBleGFtcGxlLmNvbSIsImlkIjoxMiwicm9sZSI6IkNPTVBBTlkiLCJpYXQiOjE3NDc1MDMwNTAsImV4cCI6MTc0NzU4OTQ1MH0.7onZd2xqQMfCskFXaF3n55zCntnw6fjO-vlG-RU3wq33Bv_mQLYLHQ8Z6OYQ-8Cq1oK_woddt3uwsnMjFcbqhw
+}
+
+body:json {
+  {
+      "status": "REVIEWING"
+  }
+}

@@ -1,0 +1,18 @@
+meta {
+  name: Login as Admin
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/api/auth/login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "email": "admin1@example.com",
+      "password": "admin"
+  }
+}

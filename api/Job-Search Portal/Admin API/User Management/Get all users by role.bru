@@ -1,0 +1,19 @@
+meta {
+  name: Get all users by role
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8080/api/admin/users?role=APPLICANT
+  body: none
+  auth: bearer
+}
+
+params:query {
+  role: APPLICANT
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbjFAZXhhbXBsZS5jb20iLCJpZCI6MTgsInJvbGUiOiJST0xFX0FETUlOIiwiaWF0IjoxNzQ3NTEzNTYwLCJleHAiOjE3NDc1OTk5NjB9.y7aFHYHOUxrEwPxP_dwZ8Ckt7_BCPPH2o_dqajY9lmt3F_-kgmu55pD0jZg__sWINh45CUhv0BwotTFRAyscIQ
+}

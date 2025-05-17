@@ -1,5 +1,6 @@
 package com.jobportal.backend.entity;
 
+import com.jobportal.backend.enums.ApplicationStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -23,8 +24,9 @@ public class Application {
     @Column(name = "resume_url", nullable = false)
     private String resumeUrl;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status = "PENDING"; // PENDING, REVIEWING, ACCEPTED, REJECTED
+    private ApplicationStatus status = ApplicationStatus.PENDING;
 
     @Column(nullable = false)
     private LocalDateTime appliedAt = LocalDateTime.now();
@@ -62,11 +64,11 @@ public class Application {
         this.resumeUrl = resumeUrl;
     }
 
-    public String getStatus() {
+    public ApplicationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ApplicationStatus status) {
         this.status = status;
     }
 

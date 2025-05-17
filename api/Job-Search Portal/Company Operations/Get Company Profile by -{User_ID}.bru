@@ -1,0 +1,15 @@
+meta {
+  name: Get Company Profile by /{User_ID}
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8080/api/company-profile/11
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjb21wYW55M0BleGFtcGxlLmNvbSIsImlkIjoxMSwicm9sZSI6IkNPTVBBTlkiLCJpYXQiOjE3NDc0ODI3NDUsImV4cCI6MTc0NzU2OTE0NX0.xAbGMOPO_XkY__yqVrSRku3yg6BIBsgjzO3apIKbIisKp-PGF3egwbw24a9YqIIM7krXCFSpZ45IOc-Y-RjVjA
+}

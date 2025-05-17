@@ -1,0 +1,22 @@
+meta {
+  name: Login as COMPANY user m capture token
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/auth/login
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: 
+}
+
+body:json {
+  {  
+    "email": "techcorp@example.com",
+    "password": "techcorp123"
+  }
+}

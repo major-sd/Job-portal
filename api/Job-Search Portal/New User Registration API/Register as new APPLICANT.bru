@@ -1,0 +1,20 @@
+meta {
+  name: Register as new APPLICANT
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/api/auth/register
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {  
+    "name":"admin1",
+    "email": "admin1@example.com",
+    "password": "admin",
+    "role":"admin"
+  }
+}

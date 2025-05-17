@@ -1,0 +1,20 @@
+meta {
+  name: Register as new COMPANY user
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/auth/register
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {  
+    "name":"company3",
+    "email": "company3@example.com",
+    "password": "password123",
+    "role":"COMPANY"
+  }
+}

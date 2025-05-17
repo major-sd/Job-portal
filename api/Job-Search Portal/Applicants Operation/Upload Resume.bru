@@ -1,0 +1,19 @@
+meta {
+  name: Upload Resume
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/applicant/resume
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcHBsaWNhbnQ1QGV4YW1wbGUuY29tIiwiaWQiOjE1LCJyb2xlIjoiQVBQTElDQU5UIiwiaWF0IjoxNzQ3NDk2MzIwLCJleHAiOjE3NDc1ODI3MjB9.a09m8j7_9qH0o4WCAOIfsvC0M5wS0ylwgwoCr4yR8FrWjL5V6ex8usPlVRLoYxUTs2x3Ad3ruuwSe_RlGoJ3IQ
+}
+
+body:multipart-form {
+  file: @file(/Users/I528949/FSAD-job-portal/Job-portal/test-resume.pdf)
+}

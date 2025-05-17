@@ -1,0 +1,20 @@
+meta {
+  name: Get My Company Profile
+  type: http
+  seq: 3
+}
+
+# Get own company profile
+GET http://localhost:8081/api/company-profile/me
+Authorization: Bearer {{token}}
+
+tests {
+  test("should return 200 status code") {
+    expect(response.status).toBe(200)
+  }
+  
+  test("should return company profile") {
+    expect(response.body.companyName).toBe("Test Company Inc.")
+    expect(response.body.id).toBeTruthy()
+  }
+} 
