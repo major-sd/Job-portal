@@ -1,0 +1,266 @@
+### Environment Variables ###
+# @name login_company
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "tech@company.com",
+    "password": "password123"
+}
+
+###
+
+@company_token = {{login_company.response.body.token}}
+
+# @name login_applicant
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "john@example.com",
+    "password": "password123"
+}
+
+###
+
+@applicant_token = {{login_applicant.response.body.token}}
+
+# @name login_admin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "admin@jobportal.com",
+    "password": "admin123"
+}
+
+###
+
+@admin_token = {{login_admin.response.body.token}}
+
+### Job Portal API Tests ###
+
+#####################################################
+### 1. User Registration
+#####################################################
+
+### Register TechCorp (Company)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "TechCorp Inc",
+    "email": "techcorp@example.com",
+    "password": "techcorp123",
+    "role": "COMPANY"
+}
+
+### Register John (Applicant)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "John Developer",
+    "email": "john@example.com",
+    "password": "john123",
+    "role": "APPLICANT"
+}
+
+### Register Admin
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "Admin User",
+    "email": "admin@jobportal.com",
+    "password": "admin123",
+    "role": "ADMIN"
+}
+
+#####################################################
+### 2. User Authentication (Login)
+#####################################################
+
+### Login as TechCorp (Company)
+# @name loginCompany
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "techcorp@example.com",
+    "password": "techcorp123"
+}
+
+> {% client.global.set("company_token", response.body.token); %}
+
+### Login as John (Applicant)
+# @name loginApplicant
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "john@example.com",
+    "password": "john123"
+}
+
+> {% client.global.set("applicant_token", response.body.token); %}
+
+### Login as Admin
+# @name loginAdmin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "admin@jobportal.com",
+    "password": "admin123"
+}
+
+> {% client.global.set("admin_token", response.body.token); %}
+
+#####################################################
+### 3. Company Operations
+#####################################################
+
+### Create Company Profile
+POST http://localhost:8080/api/company-profile
+Content-Type: application/json
+Authorization: Bearer {{company_token}}
+
+{
+    "companyName": "TechCorp Inc"
+}
+
+### Get Company Profile
+GET http://localhost:8080/api/company-profile/me
+Authorization: Bearer {{company_token}}
+
+### Create First Job Posting
+POST http://localhost:8080/api/jobs
+Content-Type: application/json
+Authorization: Bearer {{company_token}}
+
+{
+    "title": "Senior Software Engineer",
+    "description": "Looking for an experienced software engineer with 5+ years of experience",
+    "location": "San Francisco, CA",
+    "salaryRange": "$120,000 - $150,000"
+}
+
+### Create Second Job Posting
+POST http://localhost:8080/api/jobs
+Content-Type: application/json
+Authorization: Bearer {{company_token}}
+
+{
+    "title": "Frontend Developer",
+    "description": "Looking for a frontend developer with React experience",
+    "location": "Remote",
+    "salaryRange": "$90,000 - $120,000"
+}
+
+### View Company's Job Postings
+GET http://localhost:8080/api/jobs/company
+Authorization: Bearer {{company_token}}
+
+#####################################################
+### 4. Applicant Operations
+#####################################################
+
+### Upload Resume
+POST http://localhost:8080/api/applicant/resume
+Content-Type: multipart/form-data; boundary=boundary
+Authorization: Bearer {{applicant_token}}
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="resume.pdf"
+Content-Type: application/pdf
+
+< ./test-files/resume.pdf
+--boundary--
+
+### Search All Jobs
+GET http://localhost:8080/api/applicant/jobs
+Authorization: Bearer {{applicant_token}}
+
+### Apply for First Job
+POST http://localhost:8080/api/applicant/apply/1
+Content-Type: application/json
+Authorization: Bearer {{applicant_token}}
+
+{
+    "resumeUrl": "/api/applicant/resume/1/resume.pdf"
+}
+
+### View My Applications
+GET http://localhost:8080/api/applicant/applications
+Authorization: Bearer {{applicant_token}}
+
+#####################################################
+### 5. Company Reviews Applications
+#####################################################
+
+### View Applications for Job
+GET http://localhost:8080/api/jobs/1/applications
+Authorization: Bearer {{company_token}}
+
+### Update Application Status
+PUT http://localhost:8080/api/jobs/applications/1
+Content-Type: application/json
+Authorization: Bearer {{company_token}}
+
+{
+    "status": "REVIEWING"
+}
+
+#####################################################
+### 6. Admin Operations
+#####################################################
+
+### Get All Users
+GET http://localhost:8080/api/admin/users
+Authorization: Bearer {{admin_token}}
+
+### Get All Jobs
+GET http://localhost:8080/api/admin/jobs
+Authorization: Bearer {{admin_token}}
+
+### Get All Applications
+GET http://localhost:8080/api/admin/applications
+Authorization: Bearer {{admin_token}}
+
+### Get System Statistics
+GET http://localhost:8080/api/admin/stats
+Authorization: Bearer {{admin_token}}
+
+#####################################################
+### Testing Notes:
+#####################################################
+# Test Sequence:
+# 1. Register all users
+# 2. Login and get tokens
+# 3. Company: Create profile and post jobs
+# 4. Applicant: Upload resume and apply for jobs
+# 5. Company: Review applications
+# 6. Admin: Monitor overall system
+#
+# Expected Results:
+# - All registrations should return 200/201
+# - Logins should return tokens
+# - Company operations require company token
+# - Applicant operations require applicant token
+# - Admin operations require admin token
+# - Invalid tokens should return 401
+# - Wrong role access should return 403
+#
+# 7. Resume Upload:
+#    - Create a test-files directory
+#    - Add a sample resume.pdf for testing
+#    - Maximum file size is configured in application.properties
+#    - Supported formats: PDF, DOC, DOCX
+#
+# 8. Email Notifications:
+#    - Emails are sent for:
+#      * Application submission
+#      * Application status changes
+#      * Account registration
+#    - Check spam folder during testing 
