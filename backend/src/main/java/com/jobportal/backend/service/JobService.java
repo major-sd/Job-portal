@@ -94,6 +94,29 @@ public class JobService {
         return applicationRepository.findByJobId(jobId);
     }
 
+    // Update job active status
+    @Transactional
+    public Job updateJobActiveStatus(Long companyId, Long jobId, boolean active) {
+        logger.info("Attempting to update job {} active status to {} by company {}", jobId, active, companyId);
+        
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> {
+                    logger.error("Job {} not found", jobId);
+                    return new RuntimeException("Job not found");
+                });
+
+        if (!job.getCompany().getId().equals(companyId)) {
+            logger.error("Company {} not authorized to update job {}", companyId, jobId);
+            throw new RuntimeException("Not authorized to update this job");
+        }
+
+        job.setActive(active);
+        Job savedJob = jobRepository.save(job);
+        logger.info("Successfully updated job active status");
+        
+        return savedJob;
+    }
+
     // Update application status
     @Transactional
     public Application updateApplicationStatus(Long companyId, Long applicationId, ApplicationStatus status) {

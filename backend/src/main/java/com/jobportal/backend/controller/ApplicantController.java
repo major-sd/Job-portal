@@ -22,7 +22,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/applicant")
@@ -62,7 +65,7 @@ public class ApplicantController {
             @RequestParam("file") MultipartFile file) {
         try {
             String resumeUrl = applicantService.uploadResume(userDetails.getUser().getId(), file);
-            return ResponseEntity.ok(resumeUrl);
+            return ResponseEntity.ok(Collections.singletonMap("message", resumeUrl));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -147,11 +150,23 @@ public class ApplicantController {
 
     // Get my applications
     @GetMapping("/applications")
-    public ResponseEntity<List<Application>> getMyApplications(
+    public ResponseEntity<List<Map<String, Object>>> getMyApplications(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<Application> applications = applicantService.getApplicationsByApplicant(
             userDetails.getUser().getId());
-        return ResponseEntity.ok(applications);
+        List<Map<String, Object>> response = applications.stream().map(app -> Map.of(
+            "id", String.valueOf(app.getId()),
+            "job", Map.of(
+                "id", String.valueOf(app.getJob().getId()),
+                "title", app.getJob().getTitle(),
+                "company", Map.of(
+                    "name", app.getJob().getCompany().getName()
+                )
+            ),
+            "status", app.getStatus().toString(),
+            "appliedAt", app.getAppliedAt().atZone(ZoneOffset.UTC).toInstant().toString()
+        )).toList();
+        return ResponseEntity.ok(response);
     }
 
     // Get application status

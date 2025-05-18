@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/jobs")
@@ -36,19 +37,59 @@ public class JobController {
 
     // Get all active jobs (Public)
     @GetMapping
-    public ResponseEntity<List<Job>> getAllActiveJobs(
+    public ResponseEntity<List<Map<String, Object>>> getAllActiveJobs(
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String salaryRange) {
         List<Job> jobs = jobService.searchJobs(location, title, salaryRange);
-        return ResponseEntity.ok(jobs);
+        List<Map<String, Object>> response = jobs.stream().map(job -> {
+            // Format the date as ISO-8601 string (2023-05-01T00:00:00Z format)
+            String formattedDate = null;
+            if (job.getPostedAt() != null) {
+                // Convert LocalDateTime to proper ISO-8601 format with Z suffix for UTC
+                formattedDate = job.getPostedAt().toString().replace("T", "T").concat("Z");
+            }
+            
+            return Map.of(
+                "id", String.valueOf(job.getId()),
+                "title", job.getTitle(),
+                "company", Map.of("name", job.getCompany().getName()),
+                "location", job.getLocation(),
+                "salaryRange", job.getSalaryRange(),
+                "description", job.getDescription(),
+                "postedAt", formattedDate,
+                "requirements", job.getRequirements(),
+                "responsibilities", job.getResponsibilities()
+            );
+        }).toList();
+        return ResponseEntity.ok(response);
     }
 
     // Get job by ID (Public)
     @GetMapping("/{id}")
-    public ResponseEntity<Job> getJobById(@PathVariable Long id) {
+    public ResponseEntity<?> getJobById(@PathVariable Long id) {
         return jobService.getJobById(id)
-                .map(ResponseEntity::ok)
+                .map(job -> {
+                    // Format the date as ISO-8601 string
+                    String formattedDate = null;
+                    if (job.getPostedAt() != null) {
+                        formattedDate = job.getPostedAt().toString().replace("T", "T").concat("Z");
+                    }
+                    
+                    Map<String, Object> response = Map.of(
+                        "id", String.valueOf(job.getId()),
+                        "title", job.getTitle(),
+                        "company", Map.of("name", job.getCompany().getName()),
+                        "location", job.getLocation(),
+                        "salaryRange", job.getSalaryRange(),
+                        "description", job.getDescription(),
+                        "postedAt", formattedDate,
+                        "requirements", job.getRequirements(),
+                        "responsibilities", job.getResponsibilities()
+                    );
+                    
+                    return ResponseEntity.ok(response);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -90,6 +131,23 @@ public class JobController {
         return ResponseEntity.ok(jobs);
     }
 
+    // Update job active status (COMPANY only, must be owner)
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<?> updateJobStatus(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id,
+            @RequestParam boolean active) {
+        logger.debug("Updating job status. JobId: {}, active: {}", id, active);
+        try {
+            Job updatedJob = jobService.updateJobActiveStatus(userDetails.getUser().getId(), id, active);
+            return ResponseEntity.ok(updatedJob);
+        } catch (RuntimeException e) {
+            logger.error("Error updating job status: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     // Get applications for a job (COMPANY only, must be owner)
     @GetMapping("/{jobId}/applications")
     @PreAuthorize("hasRole('COMPANY')")
@@ -125,4 +183,4 @@ public class JobController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-} 
+}

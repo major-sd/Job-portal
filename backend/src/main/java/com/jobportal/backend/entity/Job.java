@@ -2,6 +2,8 @@ package com.jobportal.backend.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "jobs")
@@ -31,6 +33,16 @@ public class Job {
 
     @Column(nullable = false)
     private boolean isActive = true;
+    
+    @ElementCollection
+    @CollectionTable(name = "job_requirements", joinColumns = @JoinColumn(name = "job_id"))
+    @Column(name = "requirement", length = 500)
+    private List<String> requirements = new ArrayList<>();
+    
+    @ElementCollection
+    @CollectionTable(name = "job_responsibilities", joinColumns = @JoinColumn(name = "job_id"))
+    @Column(name = "responsibility", length = 500)
+    private List<String> responsibilities = new ArrayList<>();
 
     // Getters and Setters
     public Long getId() {
@@ -95,5 +107,21 @@ public class Job {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+    
+    public List<String> getRequirements() {
+        return requirements;
+    }
+    
+    public void setRequirements(List<String> requirements) {
+        this.requirements = requirements;
+    }
+    
+    public List<String> getResponsibilities() {
+        return responsibilities;
+    }
+    
+    public void setResponsibilities(List<String> responsibilities) {
+        this.responsibilities = responsibilities;
     }
 }

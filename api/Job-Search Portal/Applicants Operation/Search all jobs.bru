@@ -5,7 +5,19 @@ meta {
 }
 
 get {
-  url: http://localhost:8080/api/applicant/apply/
+  url: http://localhost:8080/api/applicant/jobs
   body: none
-  auth: none
+  auth: bearer
+}
+
+headers {
+  : 
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ2aXZla0BleGFtcGxlLmNvbSIsImlkIjoxOSwicm9sZSI6IlJPTEVfQVBQTElDQU5UIiwiaWF0IjoxNzQ3NTUwODc2LCJleHAiOjE3NDc2MzcyNzZ9.H4cHCwPoUKXuE7xFA5Ds5JdF4d8WblGB5VSMO7MG4O8ToxISi69hiMfRkEBJSBr4fUm9QK9gCpSo0QLUpikYXQ
+}
+
+docs {
+  Only jobs with active=true, gets appeared
 }

@@ -59,9 +59,14 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/jobs").permitAll()
                         .requestMatchers("/api/jobs/").permitAll()
+                        .requestMatchers("/api/jobs/{id}").permitAll()
+                        .requestMatchers("/api/jobs/{id}/status").hasAuthority("ROLE_COMPANY")
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/applicant/**").hasAuthority("ROLE_APPLICANT")
                         .requestMatchers("/api/company/**").hasAuthority("ROLE_COMPANY")
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api-docs/**").permitAll()
                         .anyRequest().authenticated();
                     logger.debug("Security paths configured");
                 })

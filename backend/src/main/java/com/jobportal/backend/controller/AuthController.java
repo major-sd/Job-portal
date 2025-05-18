@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -34,7 +36,7 @@ public class AuthController {
                 req.getRole()
         );
         userRepo.save(user);
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.ok(Collections.singletonMap("message", "User registered successfully"));
     }
 
     @PostMapping("/login")
@@ -44,10 +46,18 @@ public class AuthController {
                 !passwordEncoder.matches(req.getPassword(), userOpt.get().getPassword())) {
             return ResponseEntity
                     .status(401)
-                    .body("Invalid email or password");
+                    .body(Collections.singletonMap("error", "Invalid email or password"));
         }
         User user = userOpt.get();
         String token = jwtUtils.generateToken(user.getEmail(), user.getId(), user.getRole());
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(Collections.unmodifiableMap(
+            Map.of(
+                "token", token,
+                "user", Map.of(
+                    "name", user.getName(),
+                    "role", user.getRole()
+                )
+            )
+        ));
     }
 }

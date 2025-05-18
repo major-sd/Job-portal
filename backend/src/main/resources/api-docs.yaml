@@ -1,0 +1,396 @@
+openapi: 3.0.3
+info:
+  title: Job Portal API
+  description: REST API for Job Portal application with authentication and role-based access control
+  version: 1.0.0
+  contact:
+    name: Job Portal Team
+    email: support@jobportal.com
+    url: https://jobportal.com
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - role
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        role:
+          type: string
+          enum: [APPLICANT, COMPANY, ADMIN]
+
+    Job:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: string
+        salaryRange:
+          type: string
+        company:
+          $ref: '#/components/schemas/User'
+        isActive:
+          type: boolean
+        postedAt:
+          type: string
+          format: date-time
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [APPLICANT, COMPANY, ADMIN]
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    Application:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        job:
+          $ref: '#/components/schemas/Job'
+        applicant:
+          $ref: '#/components/schemas/User'
+        resumeUrl:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, REVIEWING, ACCEPTED, REJECTED]
+        appliedAt:
+          type: string
+          format: date-time
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Create a new user account (Applicant, Company, or Admin)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: User registered successfully
+        '400':
+          description: Invalid input or email already exists
+
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      description: Authenticate user and receive JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful, returns JWT token
+        '401':
+          description: Invalid credentials
+
+  /api/jobs:
+    get:
+      tags:
+        - Jobs
+      summary: Get all active jobs
+      description: Retrieve all active job listings (public endpoint)
+      security: []
+      parameters:
+        - name: location
+          in: query
+          schema:
+            type: string
+        - name: title
+          in: query
+          schema:
+            type: string
+        - name: salaryRange
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of active jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Job'
+
+    post:
+      tags:
+        - Jobs
+      summary: Create new job
+      description: Create a new job posting (Company only)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+      responses:
+        '200':
+          description: Job created successfully
+        '403':
+          description: Not authorized to create jobs
+
+  /api/jobs/{id}:
+    get:
+      tags:
+        - Jobs
+      summary: Get job by ID
+      description: Retrieve details of a specific job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Job details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '404':
+          description: Job not found
+
+  /api/jobs/{id}/status:
+    put:
+      tags:
+        - Jobs
+      summary: Update job status
+      description: Update job active status (Company only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: active
+          in: query
+          required: true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Job status updated successfully
+        '403':
+          description: Not authorized to update this job
+        '404':
+          description: Job not found
+
+  /api/applicant/profile:
+    get:
+      tags:
+        - Applicant
+      summary: Get applicant profile
+      description: Get current applicant's profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Applicant profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: Not authorized
+
+  /api/applicant/apply/{jobId}:
+    post:
+      tags:
+        - Applicant
+      summary: Apply for job
+      description: Submit job application
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resumeUrl
+              properties:
+                resumeUrl:
+                  type: string
+      responses:
+        '200':
+          description: Application submitted successfully
+        '400':
+          description: Invalid input or already applied
+        '403':
+          description: Not authorized to apply
+
+  /api/company/jobs/{jobId}/applications:
+    get:
+      tags:
+        - Company
+      summary: Get job applications
+      description: Get all applications for a specific job (Company only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: List of applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Application'
+        '403':
+          description: Not authorized to view applications
+
+  /api/admin/users:
+    get:
+      tags:
+        - Admin
+      summary: Get all users
+      description: Get list of all users (Admin only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [APPLICANT, COMPANY, ADMIN]
+        - name: includeInactive
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: Not authorized
+
+  /api/admin/users/{id}/status:
+    put:
+      tags:
+        - Admin
+      summary: Update user status
+      description: Activate or deactivate user account (Admin only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: active
+          in: query
+          required: true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: User status updated successfully
+        '403':
+          description: Not authorized
+        '404':
+          description: User not found 

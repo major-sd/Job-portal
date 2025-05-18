@@ -164,6 +164,39 @@ Authorization: Bearer {{company_token}}
 GET http://localhost:8080/api/jobs/company
 Authorization: Bearer {{company_token}}
 
+### Update Job Active Status
+PUT http://localhost:8080/api/jobs/{{job_id}}/status?active=false
+Authorization: Bearer {{company_token}}
+
+# Response will be the updated job object with active=false
+# To reactivate the job, use active=true in the query parameter
+
+### Update Job with Requirements and Responsibilities
+PUT http://localhost:8080/api/jobs/1
+Content-Type: application/json
+Authorization: Bearer {{company_token}}
+
+{
+  "title": "Senior Frontend Developer",
+  "description": "We are looking for an experienced frontend developer to join our team.",
+  "location": "San Francisco, CA (Remote)",
+  "salaryRange": "$120,000 - $150,000",
+  "requirements": [
+    "5+ years of experience in frontend development",
+    "Strong proficiency in React, TypeScript, and modern JavaScript",
+    "Experience with state management libraries (Redux, MobX, etc.)",
+    "Knowledge of responsive design and cross-browser compatibility",
+    "Familiarity with testing frameworks (Jest, React Testing Library)"
+  ],
+  "responsibilities": [
+    "Develop and maintain frontend applications using React and TypeScript",
+    "Collaborate with designers and backend developers to implement features",
+    "Write clean, maintainable, and efficient code",
+    "Participate in code reviews and provide constructive feedback",
+    "Stay up-to-date with emerging trends and technologies"
+  ]
+}
+
 #####################################################
 ### 4. Applicant Operations
 #####################################################
