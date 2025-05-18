@@ -9,7 +9,7 @@ import { MapPinIcon, CalendarIcon, DollarSignIcon } from "lucide-react"
 import Link from "next/link"
 import { api } from "@/lib/api"
 
-export default function JobList({ limit }: { limit?: number }) {
+export default function JobList({ limit, filterParams }: { limit?: number; filterParams?: any }) {
   interface Job {
     id: string
     title: string
@@ -27,8 +27,15 @@ export default function JobList({ limit }: { limit?: number }) {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const data = await api.getJobs()
-        setJobs(data)
+        console.log("Fetching jobs with filter params:", filterParams);
+        if (filterParams) {
+          const data = await api.getJobs(filterParams)
+          setJobs(data)
+        }
+        else{
+          const data = await api.getJobs()
+          setJobs(data)
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "An unknown error occurred")
       } finally {
@@ -37,7 +44,7 @@ export default function JobList({ limit }: { limit?: number }) {
     }
 
     fetchJobs()
-  }, [])
+  }, [filterParams])
 
   if (isLoading) {
     return (

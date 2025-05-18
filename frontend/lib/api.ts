@@ -43,7 +43,7 @@ export const api = {
   // Job endpoints
   async getJobs(params = {}) {
     const queryParams = new URLSearchParams(params as Record<string, string>)
-    const response = await fetch(`${API_BASE_URL}/jobs`)
+    const response = await fetch(`${API_BASE_URL}/jobs?${queryParams}`)
     return handleResponse(response)
   },
 

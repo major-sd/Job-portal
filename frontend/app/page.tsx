@@ -8,10 +8,35 @@ import { SearchIcon } from "lucide-react"
 import Link from "next/link"
 import JobList from "@/components/job-list"
 import { LocationCombobox } from "@/components/location-combobox"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { api } from "@/lib/api"
 
 export default function Home() {
   const [location, setLocation] = useState("")
+  const [title, setTitle] = useState("")
+  const [salaryRange, setSalaryRange] = useState("")
+  const [jobs, setJobs] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [filterParams, setFilterParams] = useState(null)
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    setLoading(true)
+    try {
+      const params: any = {}
+      if (title) params.title = title
+      if (location) params.location = location
+      if (salaryRange) params.salaryRange = salaryRange
+      console.log("Filter params:", params);
+      setFilterParams(params)
+      const data = await api.getJobs(params)
+      setJobs(data)
+    } catch (err) {
+      // Optionally show a toast or error
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -27,9 +52,9 @@ export default function Home() {
               </p>
             </div>
             <div className="w-full max-w-3xl space-y-2">
-              <form className="flex flex-col gap-2 md:flex-row">
+              <form className="flex flex-col gap-2 md:flex-row" onSubmit={handleSubmit}>
                 <div className="flex-1">
-                  <Input placeholder="Job title or keywords" />
+                  <Input placeholder="Job title or keywords" value={title} onChange={e => setTitle(e.target.value)} />
                 </div>
                 <div className="flex-1">
                   <LocationCombobox 
@@ -39,21 +64,23 @@ export default function Home() {
                   />
                 </div>
                 <div className="flex-1">
-                  <Select>
+                  <Select value={salaryRange} onValueChange={setSalaryRange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Salary Range" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="0-50k">$0 - $50k</SelectItem>
-                      <SelectItem value="50k-100k">$50k - $100k</SelectItem>
-                      <SelectItem value="100k-150k">$100k - $150k</SelectItem>
-                      <SelectItem value="150k+">$150k+</SelectItem>
+                      <SelectItem value="$0 - $25K">$0 - $25K</SelectItem>
+                      <SelectItem value="$25K - $50K">$25K - $50K</SelectItem>
+                      <SelectItem value="$50K - $75K">$50K - $75K</SelectItem>
+                      <SelectItem value="$75K - $100K">$75K - $100K</SelectItem>
+                      <SelectItem value="$100K - $150K">$100K - $150K</SelectItem>
+                      <SelectItem value="$150K - Above">$150K - Above</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <Button type="submit">
+                <Button type="submit" disabled={loading}>
                   <SearchIcon className="mr-2 h-4 w-4" />
-                  Search
+                  {loading ? "Searching..." : "Search"}
                 </Button>
               </form>
             </div>
@@ -63,12 +90,12 @@ export default function Home() {
 
       <section className="container px-4 md:px-6 py-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold tracking-tight">Featured Jobs</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{!filterParams ? "Featured Jobs" : "Search Results"}</h2>
           <Link href="/jobs">
             <Button variant="outline">View All Jobs</Button>
           </Link>
         </div>
-        <JobList limit={5} />
+        <JobList jobs={jobs} limit={3} loading={loading} filterParams={filterParams} />
       </section>
 
       <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">

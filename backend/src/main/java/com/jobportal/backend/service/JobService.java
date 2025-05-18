@@ -35,8 +35,15 @@ public class JobService {
 
     // Search jobs with filters
     public List<Job> searchJobs(String location, String title, String salaryRange) {
-        // For now, return all active jobs. You can implement more sophisticated search later
-        return jobRepository.findByIsActiveTrue();
+        logger.info("Searching jobs with filters - title: {}, location: {}, salaryRange: {}", 
+                   title, location, salaryRange);
+        
+        // Get jobs filtered by title, location, and salary range using a single query
+        return jobRepository.searchJobs(
+            title != null && !title.isEmpty() ? title : null,
+            location != null && !location.isEmpty() ? location : null,
+            salaryRange != null && !salaryRange.isEmpty() ? salaryRange : null
+        );
     }
 
     // Get job by ID

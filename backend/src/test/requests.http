@@ -165,7 +165,7 @@ GET http://localhost:8080/api/jobs/company
 Authorization: Bearer {{company_token}}
 
 ### Update Job Active Status
-PUT http://localhost:8080/api/jobs/{{job_id}}/status?active=false
+PUT http://localhost:8080/api/jobs/1/status?active=false
 Authorization: Bearer {{company_token}}
 
 # Response will be the updated job object with active=false
@@ -218,7 +218,7 @@ GET http://localhost:8080/api/applicant/jobs
 Authorization: Bearer {{applicant_token}}
 
 ### Apply for a Job
-POST http://localhost:8080/api/applicant/apply/{{job_id}}
+POST http://localhost:8080/api/applicant/apply/1
 Content-Type: application/json
 Authorization: Bearer {{applicant_token}}
 
@@ -432,4 +432,30 @@ Authorization: Bearer {{company_token}}
 
 ### View Applications for Another Job (Company Only)
 GET http://localhost:8080/api/jobs/2/applications
-Authorization: Bearer {{company_token}} 
+Authorization: Bearer {{company_token}}
+
+### Job Search API Tests
+
+# Get all jobs (no filters)
+GET http://localhost:8080/api/jobs
+
+### Search jobs by title
+GET http://localhost:8080/api/jobs?title=developer
+
+### Search jobs by location
+GET http://localhost:8080/api/jobs?location=San Francisco
+
+### Search jobs by salary range - Lower Range
+GET http://localhost:8080/api/jobs?salaryRange=$0 - $25K
+
+### Search jobs by salary range - Middle Range
+GET http://localhost:8080/api/jobs?salaryRange=$50K - $75K
+
+### Search jobs by salary range - Upper Range
+GET http://localhost:8080/api/jobs?salaryRange=$100K - $150K
+
+### Search jobs by salary range - Top Range
+GET http://localhost:8080/api/jobs?salaryRange=$150K+
+
+### Combined search
+GET http://localhost:8080/api/jobs?title=developer&location=remote&salaryRange=$75K - $100K 
