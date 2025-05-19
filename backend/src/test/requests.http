@@ -160,6 +160,15 @@ Authorization: Bearer {{company_token}}
     "salaryRange": "$90,000 - $120,000"
 }
 
+
+### Get all jobs posted by the company
+GET http://localhost:8080/api/jobs/company
+Authorization: Bearer {{company_token}}
+
+### Get applications for a specific job (replace {jobId} with actual job ID)
+GET http://localhost:8080/api/jobs/{jobId}/applications
+Authorization: Bearer {{company_token}}
+
 ### View Company's Job Postings
 GET http://localhost:8080/api/jobs/company
 Authorization: Bearer {{company_token}}
@@ -310,7 +319,7 @@ Authorization: Bearer {{adminToken}}
 GET {{baseUrl}}/users/1
 Authorization: Bearer {{adminToken}}
 
-# Update user status (activate/deactivate)----deactivate users cant access system
+# Update user status (activate/deactivate)----deactivate users cant access system for fetch endpoints
 PUT {{baseUrl}}/users/1/status?active=false
 Authorization: Bearer {{adminToken}}
 
