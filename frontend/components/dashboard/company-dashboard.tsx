@@ -21,7 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import { api } from "@/lib/api"
 import { LocationCombobox } from "../location-combobox"
 
@@ -118,7 +118,7 @@ export default function CompanyDashboard() {
         ],
       }
 
-      await api.createJob(data);
+      await api.createJob(data1);
 
       // Mock success for demonstration
       toast({
@@ -137,11 +137,12 @@ export default function CompanyDashboard() {
     }
   }
   const salaryRanges = [
-    "0-25K",
-    "25-50K",
-    "50-75K",
-    "75-100K",
-    "100+K"
+    "$0 - $25K",
+    "$25K - $50K",
+    "$50K - $75K",
+    "$75K - $100K",
+    "$100K - $150K",
+    "$150K - Above",
   ];
 
   const toggleJobStatus = async (jobId: string, currentStatus: boolean) => {
