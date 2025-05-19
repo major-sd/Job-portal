@@ -112,9 +112,12 @@ export default function JobList({ limit, filterParams }: { limit?: number; filte
             <div>
               <Badge variant="outline">Full-time</Badge>
             </div>
-            <Link href={`/jobs/${job?.id}`}>
-              <Button>View Details</Button>
-            </Link>
+            <Button
+              variant="outline"
+              onClick={() => window.open('http://localhost:3000/uploads/resumes/32/b4e22bd0-cc9d-4188-83e3-ae6de46567c3.pdf', '_blank')}
+            >
+              View Details
+            </Button>
           </CardFooter>
         </Card>
       ))}

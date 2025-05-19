@@ -150,4 +150,8 @@ public class JobService {
         
         return savedApplication;
     }
+
+    public long getApplicationsCountForJob(Long jobId) {
+        return applicationRepository.countByJobId(jobId);
+    }
 } 

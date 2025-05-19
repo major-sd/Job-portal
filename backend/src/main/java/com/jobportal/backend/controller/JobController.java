@@ -59,7 +59,8 @@ public class JobController {
                 "description", job.getDescription(),
                 "postedAt", formattedDate,
                 "requirements", job.getRequirements(),
-                "responsibilities", job.getResponsibilities()
+                "responsibilities", job.getResponsibilities(),
+                "applicationsCount", jobService.getApplicationsCountForJob(job.getId())
             );
         }).toList();
         return ResponseEntity.ok(response);
@@ -85,7 +86,8 @@ public class JobController {
                         "description", job.getDescription(),
                         "postedAt", formattedDate,
                         "requirements", job.getRequirements(),
-                        "responsibilities", job.getResponsibilities()
+                        "responsibilities", job.getResponsibilities(),
+                        "applicationsCount", jobService.getApplicationsCountForJob(job.getId())
                     );
                     
                     return ResponseEntity.ok(response);
@@ -125,10 +127,23 @@ public class JobController {
     // Get company's job postings (COMPANY only)
     @GetMapping("/company")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<List<Job>> getCompanyJobs(
+    public ResponseEntity<List<Map<String, Object>>> getCompanyJobs(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<Job> jobs = jobService.getJobsByCompany(userDetails.getUser().getId());
-        return ResponseEntity.ok(jobs);
+        List<Map<String, Object>> response = jobs.stream().map(job -> Map.ofEntries(
+            Map.entry("id", String.valueOf(job.getId())),
+            Map.entry("title", job.getTitle()),
+            Map.entry("company", Map.of("name", job.getCompany().getName())),
+            Map.entry("location", job.getLocation()),
+            Map.entry("salaryRange", job.getSalaryRange()),
+            Map.entry("description", job.getDescription()),
+            Map.entry("postedAt", job.getPostedAt() != null ? job.getPostedAt().toString().replace("T", "T").concat("Z") : null),
+            Map.entry("requirements", job.getRequirements()),
+            Map.entry("responsibilities", job.getResponsibilities()),
+            Map.entry("applicationsCount", jobService.getApplicationsCountForJob(job.getId())),
+            Map.entry("active", job.isActive())
+        )).toList();
+        return ResponseEntity.ok(response);
     }
 
     // Update job active status (COMPANY only, must be owner)

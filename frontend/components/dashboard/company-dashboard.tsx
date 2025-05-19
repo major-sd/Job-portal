@@ -51,39 +51,39 @@ export default function CompanyDashboard() {
     const fetchJobs = async () => {
       try {
         // In a real implementation, this would fetch from the API
-        // const data = await api.getCompanyJobs();
-        // setJobs(data);
+        const data = await api.getCompanyJobs();
+        setJobs(data);
 
         // Mock data for demonstration
-        setJobs([
-          {
-            id: "1",
-            title: "Senior Frontend Developer",
-            location: "San Francisco, CA (Remote)",
-            salaryRange: "$120,000 - $150,000",
-            isActive: true,
-            applicationsCount: 12,
-            postedAt: "2023-05-01T00:00:00Z",
-          },
-          {
-            id: "2",
-            title: "Backend Engineer",
-            location: "New York, NY",
-            salaryRange: "$110,000 - $140,000",
-            isActive: true,
-            applicationsCount: 8,
-            postedAt: "2023-05-03T00:00:00Z",
-          },
-          {
-            id: "3",
-            title: "UX/UI Designer",
-            location: "Remote",
-            salaryRange: "$90,000 - $120,000",
-            isActive: false,
-            applicationsCount: 5,
-            postedAt: "2023-05-05T00:00:00Z",
-          },
-        ])
+        // setJobs([
+        //   {
+        //     id: "1",
+        //     title: "Senior Frontend Developer",
+        //     location: "San Francisco, CA (Remote)",
+        //     salaryRange: "$120,000 - $150,000",
+        //     active: true,
+        //     applicationsCount: 12,
+        //     postedAt: "2023-05-01T00:00:00Z",
+        //   },
+        //   {
+        //     id: "2",
+        //     title: "Backend Engineer",
+        //     location: "New York, NY",
+        //     salaryRange: "$110,000 - $140,000",
+        //     active: true,
+        //     applicationsCount: 8,
+        //     postedAt: "2023-05-03T00:00:00Z",
+        //   },
+        //   {
+        //     id: "3",
+        //     title: "UX/UI Designer",
+        //     location: "Remote",
+        //     salaryRange: "$90,000 - $120,000",
+        //     active: false,
+        //     applicationsCount: 5,
+        //     postedAt: "2023-05-05T00:00:00Z",
+        //   },
+        // ])
       } finally {
         setIsLoading(false)
       }
@@ -108,7 +108,7 @@ export default function CompanyDashboard() {
         "description":"Required a Developer",
         "location": "San Francisco, CA (Remote)",
         "salaryRange": "$100K - $150K",
-        "isActive": true,
+        "active": true,
         "applicationsCount": 12,
         "requirements":[
           "Need react knowledge"
@@ -147,10 +147,10 @@ export default function CompanyDashboard() {
   const toggleJobStatus = async (jobId: string, currentStatus: boolean) => {
     try {
       // In a real implementation, this would call the API
-      // await api.updateJobStatus(jobId, !currentStatus);
+      await api.updateJobActiveStatus(jobId, !currentStatus);
 
       // Update local state for demonstration
-      setJobs(jobs.map((job) => (job.id === jobId ? { ...job, isActive: !currentStatus } : job)))
+      setJobs(jobs.map((job) => (job.id === jobId ? { ...job, active: !currentStatus } : job)))
 
       toast({
         title: "Status updated",
@@ -330,7 +330,7 @@ export default function CompanyDashboard() {
                       <CardTitle>{job.title}</CardTitle>
                       <CardDescription>{job.location}</CardDescription>
                     </div>
-                    <Badge variant={job.isActive ? "default" : "outline"}>{job.isActive ? "Active" : "Inactive"}</Badge>
+                    <Badge variant={job.active ? "default" : "outline"}>{job.active ? "Active" : "Inactive"}</Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -350,11 +350,11 @@ export default function CompanyDashboard() {
                 </CardContent>
                 <CardFooter className="flex justify-between">
                   <Button
-                    variant={job.isActive ? "outline" : "default"}
+                    variant={job.active ? "outline" : "default"}
                     size="sm"
-                    onClick={() => toggleJobStatus(job.id, job.isActive)}
+                    onClick={() => toggleJobStatus(job.id, job.active)}
                   >
-                    {job.isActive ? "Deactivate" : "Activate"}
+                    {job.active ? "Deactivate" : "Activate"}
                   </Button>
                   <div className="flex gap-2">
                     <Link href={`/dashboard/jobs/${job.id}/applications`}>
@@ -392,8 +392,18 @@ export default function CompanyDashboard() {
                 </div>
                 <div className="flex items-center mt-2 md:mt-0">
                   <Badge className="mr-2">Pending</Badge>
-                  <Button variant="outline" size="sm">
-                    View Details
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      window.open(
+                        "http://localhost:3000/uploads/resumes/32/b4e22bd0-cc9d-4188-83e3-ae6de46567c3.pdf",
+                        "_blank"
+                      )
+                    }
+                  
+                  >
+                    View Details1
                   </Button>
                 </div>
               </div>
@@ -407,7 +417,16 @@ export default function CompanyDashboard() {
                   <Badge className="mr-2" variant="outline">
                     Reviewing
                   </Badge>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      window.open(
+                        "file:///Users/I528949/uploads/resumes/32/b22b64c0-a433-4204-8a74-d6be5747551a.pdf",
+                        "_blank"
+                      )
+                    }
+                  >
                     View Details
                   </Button>
                 </div>
@@ -422,7 +441,16 @@ export default function CompanyDashboard() {
                   <Badge className="mr-2" variant="secondary">
                     Accepted
                   </Badge>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      window.open(
+                        "file:///Users/I528949/uploads/resumes/32/b22b64c0-a433-4204-8a74-d6be5747551a.pdf",
+                        "_blank"
+                      )
+                    }
+                  >
                     View Details
                   </Button>
                 </div>

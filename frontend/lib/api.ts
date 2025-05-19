@@ -47,6 +47,32 @@ export const api = {
     return handleResponse(response)
   },
 
+  async getCompanyJobs() {
+
+    const response = await fetch(`${API_BASE_URL}/jobs/company`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      }
+    })
+    return handleResponse(response)
+  },
+
+// ## Update Job Active Status
+// PUT http://localhost:8080/api/jobs/1/status?active=false
+// Authorization: Bearer {{company_token}}
+
+
+async updateJobActiveStatus(id: string, active: boolean) {
+  const response = await fetch(`${API_BASE_URL}/jobs/${id}/status?active=${active}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  })
+  return handleResponse(response)
+},
+
   async getJobById(id: string) {
     const response = await fetch(`${API_BASE_URL}/jobs/${id}`)
     return handleResponse(response)
