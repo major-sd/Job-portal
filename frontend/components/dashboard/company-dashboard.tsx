@@ -22,6 +22,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
+import { api } from "@/lib/api"
+import { LocationCombobox } from "../location-combobox"
+
 
 export default function CompanyDashboard() {
   const [jobs, setJobs] = useState([])
@@ -29,6 +32,20 @@ export default function CompanyDashboard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
+  const [location,setLocation]=useState("")
+  const [form, setForm] = useState({
+    title: "",
+    location: "",
+    salaryRange: "",
+    description: "",
+    responsibilities: "",
+    requirements: ""
+  });
+
+
+  const onChange = (e:any) => {
+    setForm({ ...form, [e.target.id]: e.target.value });
+  };
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -75,15 +92,33 @@ export default function CompanyDashboard() {
     fetchJobs()
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (data1: { responsibilities: string[]; requirements: string[]; title: string; location: string; salaryRange: string; description: string }) => {
+   
     setIsSubmitting(true)
+
+    console.log("data-------",data1)
+
 
     try {
       // In a real implementation, this would submit to the API
       // const formData = new FormData(e.target as HTMLFormElement  this would submit to the API
       // const formData = new FormData(e.target as HTMLFormElement);
-      // await api.createJob(formData);
+      const data={
+        "title": "Senior Frontend Developer",
+        "description":"Required a Developer",
+        "location": "San Francisco, CA (Remote)",
+        "salaryRange": "$100K - $150K",
+        "isActive": true,
+        "applicationsCount": 12,
+        "requirements":[
+          "Need react knowledge"
+        ],
+        "responsibilities":[
+          "Need react knowledge"
+        ],
+      }
+
+      await api.createJob(data);
 
       // Mock success for demonstration
       toast({
@@ -101,6 +136,13 @@ export default function CompanyDashboard() {
       setIsSubmitting(false)
     }
   }
+  const salaryRanges = [
+    "0-25K",
+    "25-50K",
+    "50-75K",
+    "75-100K",
+    "100+K"
+  ];
 
   const toggleJobStatus = async (jobId: string, currentStatus: boolean) => {
     try {
@@ -123,6 +165,32 @@ export default function CompanyDashboard() {
     }
   }
 
+  const onFormSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Convert responsibilities/requirements to arrays
+    const responsibilitiesArr = form.responsibilities
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const requirementsArr = form.requirements
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    // Call your submit handler
+    await handleSubmit({
+      ...form,
+      location,
+      responsibilities: responsibilitiesArr,
+      requirements: requirementsArr
+    });
+
+    setIsSubmitting(false);
+    setIsDialogOpen(false);
+  };
+
   return (
     <Tabs defaultValue="jobs">
       <TabsList className="mb-4">
@@ -140,37 +208,90 @@ export default function CompanyDashboard() {
                 Post New Job
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Post a New Job</DialogTitle>
-                <DialogDescription>Fill out the form below to create a new job posting.</DialogDescription>
+                <DialogDescription>
+                  Fill out the form below to create a new job posting.
+                </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={onFormSubmit}>
                 <div className="grid gap-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="title">Job Title</Label>
-                    <Input id="title" placeholder="e.g. Senior Frontend Developer" required />
+                    <Input
+                      id="title"
+                      value={form.title}
+                      onChange={onChange}
+                      placeholder="e.g. Senior Frontend Developer"
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="location">Location</Label>
-                    <Input id="location" placeholder="e.g. San Francisco, CA (Remote)" required />
+                  <LocationCombobox 
+                    value={location} 
+                    onChange={setLocation} 
+                    placeholder="Location"
+                  />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="salaryRange">Salary Range</Label>
-                    <Input id="salaryRange" placeholder="e.g. $120,000 - $150,000" required />
+                    <select
+                      id="salaryRange"
+                      value={form.salaryRange}
+                      onChange={onChange}
+                      required
+                      className="w-full border rounded px-2 py-2"
+                    >
+                      <option value="">Select salary range</option>
+                      {salaryRanges.map((range) => (
+                        <option key={range} value={range}>
+                          {range}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="description">Job Description</Label>
                     <Textarea
                       id="description"
+                      value={form.description}
+                      onChange={onChange}
                       placeholder="Describe the job role, responsibilities, and requirements"
                       rows={5}
                       required
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="responsibilities">Responsibilities</Label>
+                    <Textarea
+                      id="responsibilities"
+                      value={form.responsibilities}
+                      onChange={onChange}
+                      placeholder="Enter one responsibility per line"
+                      rows={4}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="requirements">Requirements</Label>
+                    <Textarea
+                      id="requirements"
+                      value={form.requirements}
+                      onChange={onChange}
+                      placeholder="Enter one requirement per line"
+                      rows={4}
+                      required
+                    />
+                  </div>
                 </div>
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button type="submit" disabled={isSubmitting}>
