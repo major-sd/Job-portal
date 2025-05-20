@@ -1,5 +1,3 @@
-// const multer = require('multer');
-// const path = require('path');
 // API client for interacting with the backend
 
 const API_BASE_URL = "http://localhost:8080/api"
@@ -181,11 +179,7 @@ async updateApplicationStatus(id: number, status:string) {
     return handleResponse(response)
   },
     async getAllJobs() {
-    const response = await fetch(`${API_BASE_URL}/admin/jobs`, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
+    const response = await fetch(`${API_BASE_URL}/jobs`)
     return handleResponse(response)
   },
 

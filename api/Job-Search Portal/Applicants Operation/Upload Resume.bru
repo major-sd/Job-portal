@@ -5,13 +5,21 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/api/applicant/resume
+  url: http://localhost:8080/api/applicant/resume?resumeUrl=/api/applicant/resume/30/91899569-3e68-4e88-84d7-b6149e538073.pdf
   body: multipartForm
   auth: bearer
 }
 
+params:query {
+  resumeUrl: /api/applicant/resume/30/91899569-3e68-4e88-84d7-b6149e538073.pdf
+}
+
+headers {
+  : 
+}
+
 auth:bearer {
-  token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ2aXZla0BleGFtcGxlLmNvbSIsImlkIjoxOSwicm9sZSI6IlJPTEVfQVBQTElDQU5UIiwiaWF0IjoxNzQ3NTUwODc2LCJleHAiOjE3NDc2MzcyNzZ9.H4cHCwPoUKXuE7xFA5Ds5JdF4d8WblGB5VSMO7MG4O8ToxISi69hiMfRkEBJSBr4fUm9QK9gCpSo0QLUpikYXQ
+  token: {{suhana}}
 }
 
 body:multipart-form {

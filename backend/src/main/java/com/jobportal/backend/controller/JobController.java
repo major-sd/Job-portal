@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.validation.Valid;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,19 +51,21 @@ public class JobController {
                 // Convert LocalDateTime to proper ISO-8601 format with Z suffix for UTC
                 formattedDate = job.getPostedAt().toString().replace("T", "T").concat("Z");
             }
+
+            Map<String, Object> jobMap = new HashMap<>();
+            jobMap.put("id", String.valueOf(job.getId()));
+            jobMap.put("title", job.getTitle());
+            jobMap.put("company", Map.of("name", job.getCompany().getName()));
+            jobMap.put("location", job.getLocation());
+            jobMap.put("salaryRange", job.getSalaryRange());
+            jobMap.put("description", job.getDescription());
+            jobMap.put("postedAt", formattedDate);
+            jobMap.put("requirements", job.getRequirements());
+            jobMap.put("responsibilities", job.getResponsibilities());
+            jobMap.put("applicationsCount", jobService.getApplicationsCountForJob(job.getId()));
+            jobMap.put("active", job.isActive());
             
-            return Map.of(
-                "id", String.valueOf(job.getId()),
-                "title", job.getTitle(),
-                "company", Map.of("name", job.getCompany().getName()),
-                "location", job.getLocation(),
-                "salaryRange", job.getSalaryRange(),
-                "description", job.getDescription(),
-                "postedAt", formattedDate,
-                "requirements", job.getRequirements(),
-                "responsibilities", job.getResponsibilities(),
-                "applicationsCount", jobService.getApplicationsCountForJob(job.getId())
-            );
+            return jobMap;
         }).toList();
         return ResponseEntity.ok(response);
     }

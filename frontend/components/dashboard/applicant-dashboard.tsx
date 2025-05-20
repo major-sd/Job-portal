@@ -54,7 +54,7 @@ export default function ApplicantDashboard() {
         //   },
         //   {
         //     id: "3",
-        //     job: {
+        //       job: {
         //       id: "5",
         //       title: "Product Manager",
         //       company: { name: "InnovateCo" },
@@ -115,7 +115,7 @@ export default function ApplicantDashboard() {
     <Tabs defaultValue="applications">
       <TabsList className="mb-4">
         <TabsTrigger value="applications">My Applications</TabsTrigger>
-        <TabsTrigger value="saved">Saved Jobs</TabsTrigger>
+        {/* <TabsTrigger value="saved">Saved Jobs</TabsTrigger> */}
       </TabsList>
 
       <TabsContent value="applications">

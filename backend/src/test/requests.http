@@ -307,7 +307,7 @@ Authorization: Bearer {{company_token}}
 
 ### User Management
 
-# Get all users
+# Get all users including applicants, companies, and admins
 GET {{baseUrl}}/users
 Authorization: Bearer {{adminToken}}
 
@@ -319,7 +319,7 @@ Authorization: Bearer {{adminToken}}
 GET {{baseUrl}}/users/1
 Authorization: Bearer {{adminToken}}
 
-# Update user status (activate/deactivate)----deactivate users cant access system for fetch endpoints
+# Update user status (activate/deactivate)----user won't be able to apply for jobs but would be able to login
 PUT {{baseUrl}}/users/1/status?active=false
 Authorization: Bearer {{adminToken}}
 
