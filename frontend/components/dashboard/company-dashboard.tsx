@@ -140,6 +140,7 @@ export default function CompanyDashboard() {
       toast({
         title: "Status updated",
         description: `Job has been ${!currentStatus ? "activated" : "deactivated"}.`,
+        variant:'success'
       })
     } catch (error) {
       toast({

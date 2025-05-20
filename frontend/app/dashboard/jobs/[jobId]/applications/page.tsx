@@ -301,7 +301,7 @@ function ApplicationCard({
 
 function LoadingSkeleton() {
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 px-5">
       <div className="mb-8">
         <Skeleton className="h-10 w-2/3 mb-2" />
         <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
@@ -392,7 +392,7 @@ export default function JobApplicationsPage({ params }: { params: { jobId: strin
 
   if (error) {
     return (
-      <div className="container mx-auto py-10">
+      <div className="container mx-auto py-10 px-5">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">Error!</strong>
           <span className="block sm:inline"> {error}</span>
@@ -403,7 +403,7 @@ export default function JobApplicationsPage({ params }: { params: { jobId: strin
 
   if (applications.length === 0) {
     return (
-      <div className="container mx-auto py-10">
+      <div className="container mx-auto py-10 px-5">
         <h1 className="text-2xl font-bold mb-6">No applications found</h1>
       </div>
     )
@@ -413,7 +413,7 @@ export default function JobApplicationsPage({ params }: { params: { jobId: strin
   const jobDetails = applications[0]?.job
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 px-5">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">{jobDetails.title} - Applications</h1>
         <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 text-muted-foreground">
