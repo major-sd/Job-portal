@@ -41,13 +41,13 @@ Full stack job search portal based on Spring boot and React
 2. Company Module
    - Registration
    - Login
-   - Post advertisement
+   - Post jobs
    - View applications
 3. Admin Module
    - Login
    - View all users
    - View all applications
-   - View all advertisements
+   - View all jobs
 
 # Functionalities
 a) Login & Registration

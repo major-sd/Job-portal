@@ -4,12 +4,16 @@ meta {
   seq: 3
 }
 
-get {
-  url: http://localhost:8080/api/admin/jobs/1/status?active=false
+put {
+  url: http://localhost:8080/api/admin/jobs/2/status?active=true
   body: none
-  auth: inherit
+  auth: bearer
 }
 
 params:query {
-  active: false
+  active: true
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbjFAZXhhbXBsZS5jb20iLCJpZCI6MTgsInJvbGUiOiJST0xFX0FETUlOIiwiaWF0IjoxNzQ3NTEzMjY3LCJleHAiOjE3NDc1OTk2Njd9.2ku4BtVkfEzioyobDQNi8JyyuG79KxT6I6Ib1N0rbEhmZ9L8k2Cvs4wGgmzP4ySez5QbraQ4v2avJLC_7F8oHg
 }

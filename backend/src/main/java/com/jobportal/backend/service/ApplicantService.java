@@ -26,7 +26,7 @@ import java.util.UUID;
 @Service
 public class ApplicantService {
 
-    @Value("${app.upload.dir:${user.home}/uploads/resumes}")
+    @Value("${app.upload.dir:${user.home}/FSAD-job-portal/Job-portal/frontend/public/uploads/resumes}")
     private String uploadDir;
 
     @Autowired
@@ -71,6 +71,7 @@ public class ApplicantService {
         try {
             // Create upload directory if it doesn't exist
             Path uploadPath = Paths.get(uploadDir + "/" + userId);
+            System.out.println("uploadPath: " + uploadPath);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
