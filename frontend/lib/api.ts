@@ -121,7 +121,7 @@ async updateApplicationStatus(id: number, status:string) {
   },
 
   async updateJobStatus(id: string, active: boolean) {
-    const response = await fetch(`${API_BASE_URL}/jobs/${id}/status?active=${active}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/jobs/${parseInt(id,10)}/status?active=${active}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${getToken()}`,
@@ -172,9 +172,16 @@ async updateApplicationStatus(id: number, status:string) {
   },
 
   // Admin endpoints
-  async getAllUsers(params = {}) {
-    const queryParams = new URLSearchParams(params as Record<string, string>)
-    const response = await fetch(`${API_BASE_URL}/admin/users?${queryParams}`, {
+  async getAllUsers() {
+    const response = await fetch(`${API_BASE_URL}/admin/users`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    })
+    return handleResponse(response)
+  },
+    async getAllJobs() {
+    const response = await fetch(`${API_BASE_URL}/admin/jobs`, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
       },
@@ -182,7 +189,7 @@ async updateApplicationStatus(id: number, status:string) {
     return handleResponse(response)
   },
 
-  async updateUserStatus(id: string, active: boolean) {
+  async updateUserStatus(id: number, active: boolean) {
     const response = await fetch(`${API_BASE_URL}/admin/users/${id}/status?active=${active}`, {
       method: "PUT",
       headers: {
