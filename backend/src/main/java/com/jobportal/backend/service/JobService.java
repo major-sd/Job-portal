@@ -20,6 +20,9 @@ public class JobService {
     private static final Logger logger = LoggerFactory.getLogger(JobService.class);
 
     @Autowired
+    private EmailService emailService;
+    
+    @Autowired
     private JobRepository jobRepository;
 
     @Autowired
@@ -126,7 +129,7 @@ public class JobService {
 
     // Update application status
     @Transactional
-    public Application updateApplicationStatus(Long companyId, Long applicationId, ApplicationStatus status) {
+    public Application updateApplicationStatus(Long companyId, Long applicationId, ApplicationStatus status) { // status is already ApplicationStatus enum
         logger.info("Attempting to update application {} status to {} by company {}", applicationId, status, companyId);
         
         Application application = applicationRepository.findById(applicationId)
@@ -135,19 +138,48 @@ public class JobService {
                     return new RuntimeException("Application not found");
                 });
 
-        logger.info("Found application. Job company ID: {}, Requesting company ID: {}", 
-                   application.getJob().getCompany().getId(), companyId);
+        // Validate company ownership
+        // Ensure application.getJob() and application.getJob().getCompany() are not null before calling getId()
+        if (application.getJob() == null || application.getJob().getCompany() == null) {
+            logger.error("Application {} or its associated job/company is missing critical information.", applicationId);
+            throw new RuntimeException("Application data is incomplete, cannot verify company ownership.");
+        }
+        Long jobCompanyId = application.getJob().getCompany().getId();
+        logger.info("Found application. Job company ID: {}, Requesting company ID: {}", jobCompanyId, companyId);
 
-        if (!application.getJob().getCompany().getId().equals(companyId)) {
+        if (!jobCompanyId.equals(companyId)) {
             logger.error("Company {} not authorized to update application {}", companyId, applicationId);
             throw new RuntimeException("Not authorized to update this application");
         }
 
-        logger.info("Updating application status from {} to {}", application.getStatus(), status);
-        application.setStatus(status);
-        Application savedApplication = applicationRepository.save(application);
-        logger.info("Successfully updated application status");
-        
-        return savedApplication;
+        // The 'status' parameter is already an ApplicationStatus enum, no need to parse from a string.
+        // We assign it to newStatus to maintain the existing logic flow.
+        ApplicationStatus newStatus = status;
+
+        // Update status only if it's different
+        if (application.getStatus() != newStatus) {
+            logger.info("Updating application status from {} to {}", application.getStatus(), newStatus);
+            application.setStatus(newStatus);
+            Application savedApplication = applicationRepository.save(application);
+
+            // Send email if status is REVIEWING, ACCEPTED, or REJECTED
+            // The PENDING email is typically sent upon initial application creation.
+            if (newStatus == ApplicationStatus.REVIEWING ||
+                    newStatus == ApplicationStatus.ACCEPTED ||
+                    newStatus == ApplicationStatus.REJECTED) {
+                // Make sure emailService is not null
+                if (emailService != null) {
+                    emailService.sendApplicationStatusUpdateEmails(savedApplication);
+                    logger.info("Notification email sent for application {}", applicationId);
+                } else {
+                    logger.warn("EmailService is null. Cannot send notification email for application {}", applicationId);
+                }
+            }
+
+            return savedApplication;
+        }
+
+        logger.info("No status update needed. Status already {}", newStatus);
+        return application;
     }
-} 
+}
