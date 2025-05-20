@@ -79,18 +79,15 @@ async updateJobActiveStatus(id: string, active: boolean) {
   return handleResponse(response)
 },
 async updateApplicationStatus(id: number, status:string) {
-
-     const response = await fetch(`${API_BASE_URL}/jobs/applications/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/jobs/applications/${id}`, {
     method: "PUT",
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${getToken()}`,
     },
     body: JSON.stringify({status:status})
   })
   return handleResponse(response)
-
-  
- 
 },
 
   async getJobById(id: string) {
