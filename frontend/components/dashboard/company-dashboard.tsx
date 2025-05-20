@@ -33,6 +33,7 @@ export default function CompanyDashboard() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
   const [location,setLocation]=useState("")
+  const [applicants,setApplicants]=useState([])
   const [form, setForm] = useState({
     title: "",
     location: "",
@@ -42,7 +43,7 @@ export default function CompanyDashboard() {
     requirements: ""
   });
 
-
+  const companyId=JSON.parse(localStorage.getItem("user")).id
   const onChange = (e:any) => {
     setForm({ ...form, [e.target.id]: e.target.value });
   };
@@ -53,43 +54,26 @@ export default function CompanyDashboard() {
         // In a real implementation, this would fetch from the API
         const data = await api.getCompanyJobs();
         setJobs(data);
-
-        // Mock data for demonstration
-        // setJobs([
-        //   {
-        //     id: "1",
-        //     title: "Senior Frontend Developer",
-        //     location: "San Francisco, CA (Remote)",
-        //     salaryRange: "$120,000 - $150,000",
-        //     active: true,
-        //     applicationsCount: 12,
-        //     postedAt: "2023-05-01T00:00:00Z",
-        //   },
-        //   {
-        //     id: "2",
-        //     title: "Backend Engineer",
-        //     location: "New York, NY",
-        //     salaryRange: "$110,000 - $140,000",
-        //     active: true,
-        //     applicationsCount: 8,
-        //     postedAt: "2023-05-03T00:00:00Z",
-        //   },
-        //   {
-        //     id: "3",
-        //     title: "UX/UI Designer",
-        //     location: "Remote",
-        //     salaryRange: "$90,000 - $120,000",
-        //     active: false,
-        //     applicationsCount: 5,
-        //     postedAt: "2023-05-05T00:00:00Z",
-        //   },
-        // ])
       } finally {
+        setIsLoading(false)
+      }
+    }
+    const fetchApplicants=async ()=>{
+      try{
+  
+        // In a real implementation, this would fetch from the API
+        const data = await api.getApplicantsForACompany(companyId);
+        setApplicants(data);
+      }catch(err){
+          console.log(err)
+        }
+       finally {
         setIsLoading(false)
       }
     }
 
     fetchJobs()
+    fetchApplicants()
   }, [])
 
   const handleSubmit = async (data1: { responsibilities: string[]; requirements: string[]; title: string; location: string; salaryRange: string; description: string }) => {

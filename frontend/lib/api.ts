@@ -57,10 +57,16 @@ export const api = {
     })
     return handleResponse(response)
   },
+  async getApplicantsForAJob(jobId:number) {
 
-// ## Update Job Active Status
-// PUT http://localhost:8080/api/jobs/1/status?active=false
-// Authorization: Bearer {{company_token}}
+    const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/applications`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      }
+    })
+    return handleResponse(response)
+  },
 
 
 async updateJobActiveStatus(id: string, active: boolean) {
