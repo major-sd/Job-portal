@@ -21,7 +21,7 @@ public class JobService {
 
     @Autowired
     private EmailService emailService;
-    
+
     @Autowired
     private JobRepository jobRepository;
 
@@ -38,14 +38,14 @@ public class JobService {
 
     // Search jobs with filters
     public List<Job> searchJobs(String location, String title, String salaryRange) {
-        logger.info("Searching jobs with filters - title: {}, location: {}, salaryRange: {}", 
-                   title, location, salaryRange);
-        
+        logger.info("Searching jobs with filters - title: {}, location: {}, salaryRange: {}",
+                title, location, salaryRange);
+
         // Get jobs filtered by title, location, and salary range using a single query
         return jobRepository.searchJobs(
-            title != null && !title.isEmpty() ? title : null,
-            location != null && !location.isEmpty() ? location : null,
-            salaryRange != null && !salaryRange.isEmpty() ? salaryRange : null
+                title != null && !title.isEmpty() ? title : null,
+                location != null && !location.isEmpty() ? location : null,
+                salaryRange != null && !salaryRange.isEmpty() ? salaryRange : null
         );
     }
 
@@ -108,7 +108,7 @@ public class JobService {
     @Transactional
     public Job updateJobActiveStatus(Long companyId, Long jobId, boolean active) {
         logger.info("Attempting to update job {} active status to {} by company {}", jobId, active, companyId);
-        
+
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> {
                     logger.error("Job {} not found", jobId);
@@ -123,7 +123,7 @@ public class JobService {
         job.setActive(active);
         Job savedJob = jobRepository.save(job);
         logger.info("Successfully updated job active status");
-        
+
         return savedJob;
     }
 
@@ -131,7 +131,7 @@ public class JobService {
     @Transactional
     public Application updateApplicationStatus(Long companyId, Long applicationId, ApplicationStatus status) { // status is already ApplicationStatus enum
         logger.info("Attempting to update application {} status to {} by company {}", applicationId, status, companyId);
-        
+
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> {
                     logger.error("Application {} not found", applicationId);
@@ -181,5 +181,8 @@ public class JobService {
 
         logger.info("No status update needed. Status already {}", newStatus);
         return application;
+    }
+    public long getApplicationsCountForJob(Long jobId) {
+        return applicationRepository.countByJobId(jobId);
     }
 }
