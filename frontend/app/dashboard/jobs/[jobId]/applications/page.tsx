@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { formatDistanceToNow } from "date-fns"
 import { ExternalLink } from "lucide-react"
 
@@ -10,6 +10,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { api } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
+
+
+
 
 type Application = {
   id: number
@@ -214,6 +218,8 @@ function ApplicationCard({
   application: Application
   onStatusChange: (id: number, status: Application["status"]) => void
 }) {
+
+  const { toast } = useToast()
   const getStatusColor = (status: Application["status"]) => {
     switch (status) {
       case "PENDING":
@@ -239,8 +245,8 @@ function ApplicationCard({
   }
 
   const openResume = () => {
-    application.resumeUrl="http://localhost:3000/uploads/resumes/32/b4e22bd0-cc9d-4188-83e3-ae6de46567c3.pdf"
-    window.open(application.resumeUrl, "_blank")
+    const URL=`http://localhost:3000/uploads/resumes/${application.resumeUrl.split("/")[4]}/${application.resumeUrl.split("/")[5]}`
+    window.open(URL, "_blank")
   }
 
   return (
@@ -336,14 +342,19 @@ export default function JobApplicationsPage({ params }: { params: { jobId: strin
   const [applications, setApplications] = useState<Application[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
+  const { toast } = useToast()
   useEffect(() => {
     const fetchApplications = async () => {
       try {
         setLoading(true)
-        const data = await getApplicationsForJob(params.jobId)
-        setApplications(data)
-        setError(null)
+        if(params?.jobId){
+          const data = await getApplicationsForJob(params.jobId)
+          setApplications(data)
+          setError(null)
+        }
+        
+       
+        
       } catch (err) {
         console.error("Error fetching applications:", err)
         setError("Failed to load applications. Please try again.")
@@ -353,15 +364,26 @@ export default function JobApplicationsPage({ params }: { params: { jobId: strin
     }
 
     fetchApplications()
-  }, [params.jobId])
+  }, [params?.jobId])
 
-  const handleStatusChange = (applicationId: number, newStatus: Application["status"]) => {
+  const handleStatusChange = async (applicationId: number, newStatus: Application["status"]) => {
     // In a real app, you would make an API call here
     // await updateApplicationStatus(applicationId, newStatus);
-
+    console.log("changed")
     setApplications((prevApplications) =>
       prevApplications.map((app) => (app.id === applicationId ? { ...app, status: newStatus } : app)),
     )
+    try{
+      await api.updateApplicationStatus(applicationId,newStatus)
+    }catch(err){
+      console.log("inside error",err?.message)   
+      toast({
+        title: "Some Error has occured",
+        description: "Some Error has occured",
+        variant: "destructive",
+      })
+    }
+     
   }
 
   if (loading) {

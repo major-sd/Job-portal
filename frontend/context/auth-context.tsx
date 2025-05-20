@@ -1,6 +1,7 @@
 "use client"
 
 import { api } from "@/lib/api"
+import { useRouter } from "next/navigation"
 import type React from "react"
 
 import { createContext, useContext, useState, useEffect } from "react"
@@ -27,6 +28,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter() 
 
   useEffect(() => {
     // Check if user is logged in
@@ -107,6 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("token")
     localStorage.removeItem("user")
     setUser(null)
+    router.push("/")
   }
 
   const updateUserProfile = async (data: Partial<User>) => {

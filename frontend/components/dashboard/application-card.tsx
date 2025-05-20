@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import type { Application } from "@/components/applications-list"
+import { api } from "@/lib/api"
+import { toast } from "sonner"
 
 export function ApplicationCard({ application }: { application: Application }) {
   const [status, setStatus] = useState<Application["status"]>(application.status)
@@ -16,7 +18,10 @@ export function ApplicationCard({ application }: { application: Application }) {
   const handleStatusChange = async (newStatus: Application["status"]) => {
     // In a real app, you would make an API call here
     // await updateApplicationStatus(application.id, newStatus);
-    setStatus(newStatus)
+      setStatus(newStatus)
+      
+    
+     
   }
 
   const getStatusColor = (status: Application["status"]) => {
@@ -44,8 +49,8 @@ export function ApplicationCard({ application }: { application: Application }) {
   }
 
   const openResume = () => {
-    application.resumeUrl="http://localhost:3000/uploads/resumes/32/b4e22bd0-cc9d-4188-83e3-ae6de46567c3.pdf"
-    window.open(application.resumeUrl, "_blank")
+    const URL=`http://localhost:3000/uploads/resumes/${application.resumeUrl.split("/")[4]}/${application.resumeUrl.split("/")[5]}`
+    window.open(URL, "_blank")
   }
 
   return (
