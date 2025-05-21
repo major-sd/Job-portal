@@ -185,4 +185,8 @@ public class JobService {
     public long getApplicationsCountForJob(Long jobId) {
         return applicationRepository.countByJobId(jobId);
     }
-}
+
+    public long getApplicationsCountForJob(Long jobId) {
+        return applicationRepository.countByJobId(jobId);
+    }
+} 

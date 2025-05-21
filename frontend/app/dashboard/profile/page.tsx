@@ -99,7 +99,7 @@ export default function ProfilePage() {
                 </Button>
                 {user.role === "APPLICANT" && (
                   <Button variant="ghost" className="justify-start" asChild>
-                    <Link href="/dashboard/applications">My Applications</Link>
+                    <Link href="/dashboard">My Applications</Link>
                   </Button>
                 )}
                 {user.role === "COMPANY" && (

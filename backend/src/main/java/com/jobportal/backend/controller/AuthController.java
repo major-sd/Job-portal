@@ -55,7 +55,8 @@ public class AuthController {
                 "token", token,
                 "user", Map.of(
                     "name", user.getName(),
-                    "role", user.getRole()
+                    "role", user.getRole(),
+                            "id",user.getId()
                 )
             )
         ));

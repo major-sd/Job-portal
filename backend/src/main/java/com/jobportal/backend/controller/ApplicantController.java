@@ -32,7 +32,7 @@ import java.util.Map;
 @PreAuthorize("hasRole('APPLICANT')")  // Entire controller is applicant-only
 public class ApplicantController {
 
-    @Value("${app.upload.dir:${user.home}/uploads/resumes}")
+    @Value("${app.upload.dir:${user.home}/FSAD-job-portal/Job-portal/frontend/public/uploads/resumes}")
     private String uploadDir;
 
     @Autowired

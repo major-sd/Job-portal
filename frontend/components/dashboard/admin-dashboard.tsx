@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BriefcaseIcon, UsersIcon, BuildingIcon } from "lucide-react"
+import { api } from "@/lib/api"
+import { toast } from "@/hooks/use-toast"
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([])
@@ -16,81 +18,36 @@ export default function AdminDashboard() {
     const fetchData = async () => {
       try {
         // In a real implementation, this would fetch from the API
-        // const usersData = await api.getAllUsers();
-        // const jobsData = await api.getAllJobs();
-        // setUsers(usersData);
-        // setJobs(jobsData);
-
-        // Mock data for demonstration
-        setUsers([
-          {
-            id: "1",
-            name: "John Doe",
-            email: "john@example.com",
-            role: "APPLICANT",
-            active: true,
-            createdAt: "2023-04-15T00:00:00Z",
-          },
-          {
-            id: "2",
-            name: "Jane Smith",
-            email: "jane@example.com",
-            role: "APPLICANT",
-            active: true,
-            createdAt: "2023-04-20T00:00:00Z",
-          },
-          {
-            id: "3",
-            name: "TechCorp Inc.",
-            email: "hr@techcorp.com",
-            role: "COMPANY",
-            active: true,
-            createdAt: "2023-03-10T00:00:00Z",
-          },
-          {
-            id: "4",
-            name: "DataSystems Ltd.",
-            email: "careers@datasystems.com",
-            role: "COMPANY",
-            active: true,
-            createdAt: "2023-03-15T00:00:00Z",
-          },
-          {
-            id: "5",
-            name: "Admin User",
-            email: "admin@jobportal.com",
-            role: "ADMIN",
-            active: true,
-            createdAt: "2023-01-01T00:00:00Z",
-          },
-        ])
-
-        setJobs([
-          {
-            id: "1",
-            title: "Senior Frontend Developer",
-            company: { name: "TechCorp Inc." },
-            isActive: true,
-            applicationsCount: 12,
-            postedAt: "2023-05-01T00:00:00Z",
-          },
-          {
-            id: "2",
-            title: "Backend Engineer",
-            company: { name: "DataSystems Ltd." },
-            isActive: true,
-            applicationsCount: 8,
-            postedAt: "2023-05-03T00:00:00Z",
-          },
-          {
-            id: "3",
-            title: "UX/UI Designer",
-            company: { name: "Creative Solutions" },
-            isActive: false,
-            applicationsCount: 5,
-            postedAt: "2023-05-05T00:00:00Z",
-          },
-        ])
+        const usersData = await api.getAllUsers();
+        const jobsData = await api.getAllJobs();
+        setUsers(usersData);
+        setJobs(jobsData);
+        // setJobs([
+        //   {
+        //     id: "1",
+        //     title: "Senior Frontend Developer",
+        //     company: { name: "TechCorp Inc." },
+        //     active: true,
+        //     applicationsCount: 12,
+        //     postedAt: "2023-05-01T00:00:00Z",
+        //   },
+        //   {
+        //     id: "2",
+        //     title: "Backend Engineer",
+        //     company: { name: "DataSystems Ltd." },
+        //     active: true,
+        //     applicationsCount: 8,
+        //     postedAt: "2023-05-03T00:00:00Z",
+        //   },
+        //   {
+        //     id: "3",
+        //     title: "UX/UI Designer",
+        //     company: { name: "Creative Solutions" },
+        //     active: false,
+        //     applicationsCount: 5,
+        //     postedAt: "2023-05-05T00:00:00Z",
+        //   },
+        // ])
       } finally {
         setIsLoading(false)
       }
@@ -102,24 +59,44 @@ export default function AdminDashboard() {
   const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
     try {
       // In a real implementation, this would call the API
-      // await api.updateUserStatus(userId, !currentStatus);
 
+      await api.updateUserStatus(parseInt(userId, 10), !currentStatus);
       // Update local state for demonstration
       setUsers(users.map((user) => (user.id === userId ? { ...user, active: !currentStatus } : user)))
+      toast({
+        title: "User status updated",
+        description: `User is set to ${!currentStatus}`,
+        variant: 'success'
+      })
     } catch (error) {
       console.error("Error updating user status:", error)
+      toast({
+        title: "Something went wrong",
+        description: `Something went wrong while updating the user`,
+        variant: 'destructive'
+      })
     }
   }
 
   const toggleJobStatus = async (jobId: string, currentStatus: boolean) => {
     try {
       // In a real implementation, this would call the API
-      // await api.updateJobStatus(jobId, !currentStatus);
+      await api.updateJobStatus(jobId, !currentStatus);
+      toast({
+        title:"Job Updated Successfully",
+        description:`Job is set to ${!currentStatus}`,
+        variant:'success'
+        })
 
       // Update local state for demonstration
-      setJobs(jobs.map((job) => (job.id === jobId ? { ...job, isActive: !currentStatus } : job)))
+      setJobs(jobs.map((job) => (job.id === jobId ? { ...job, active: !currentStatus } : job)))
     } catch (error) {
       console.error("Error updating job status:", error)
+           toast({
+        title:"Something Went Wrong",
+        description:`Unable to ${!currentStatus} Job`,
+        variant:'destructive'
+        })
     }
   }
 
@@ -131,56 +108,165 @@ export default function AdminDashboard() {
         <TabsTrigger value="stats">Statistics</TabsTrigger>
       </TabsList>
 
+      {/* USERS TAB CONTENT */}
       <TabsContent value="users">
         <Card>
           <CardHeader>
             <CardTitle>All Users</CardTitle>
             <CardDescription>Manage all users on the platform</CardDescription>
           </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="text-center py-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto"></div>
-                <p className="mt-2 text-sm text-muted-foreground">Loading users...</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {users.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg"
-                  >
-                    <div className="space-y-1">
-                      <h3 className="font-medium">{user.name}</h3>
-                      <p className="text-sm">{user.email}</p>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{user.role}</Badge>
-                        <p className="text-xs text-muted-foreground">
-                          Joined on {new Date(user.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center mt-2 md:mt-0">
-                      <Button
-                        variant={user.active ? "outline" : "default"}
-                        size="sm"
-                        onClick={() => toggleUserStatus(user.id, user.active)}
-                        className="mr-2"
-                      >
-                        {user.active ? "Deactivate" : "Activate"}
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
-                    </div>
+
+          {/* NESTED TABS FOR USER ROLES */}
+          <Tabs defaultValue="applicant" className="w-full">
+            <TabsList className="mb-4  ml-6">
+              <TabsTrigger value="applicant">Applicant</TabsTrigger>
+              <TabsTrigger value="company">Company</TabsTrigger>
+              <TabsTrigger value="admin">Admin</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="applicant">
+              <CardContent>
+                {isLoading ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-2 text-sm text-muted-foreground">Loading users...</p>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
+                ) : (
+                  <div className="space-y-4">
+                    {users
+                      .filter((user) => user.role === "APPLICANT")
+                      .map((user) => (
+                        <div
+                          key={user.id}
+                          className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg"
+                        >
+                          <div className="space-y-1">
+                            <h3 className="font-medium">{user.name}</h3>
+                            <p className="text-sm">{user.email}</p>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline">{user.role}</Badge>
+                              <p className="text-xs text-muted-foreground">
+                                Joined on {new Date(user.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center mt-2 md:mt-0">
+                            <Button
+                              variant={user.active ? "outline" : "default"}
+                              size="sm"
+                              onClick={() => toggleUserStatus(user.id, user.active)}
+                              className="mr-2"
+                            >
+                              {user.active ? "Deactivate" : "Activate"}
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              View Details
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </CardContent>
+            </TabsContent>
+
+            <TabsContent value="company">
+              <CardContent>
+                {isLoading ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-2 text-sm text-muted-foreground">Loading users...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {users
+                      .filter((user) => user.role === "COMPANY")
+                      .map((user) => (
+                        <div
+                          key={user.id}
+                          className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg"
+                        >
+                          <div className="space-y-1">
+                            <h3 className="font-medium">{user.name}</h3>
+                            <p className="text-sm">{user.email}</p>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline">{user.role}</Badge>
+                              <p className="text-xs text-muted-foreground">
+                                Joined on {new Date(user.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center mt-2 md:mt-0">
+                            <Button
+                              variant={user.active ? "outline" : "default"}
+                              size="sm"
+                              onClick={() => toggleUserStatus(user.id, user.active)}
+                              className="mr-2"
+                            >
+                              {user.active ? "Deactivate" : "Activate"}
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              View Details
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </CardContent>
+            </TabsContent>
+
+            <TabsContent value="admin">
+              <CardContent>
+                {isLoading ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-2 text-sm text-muted-foreground">Loading users...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {users
+                      .filter((user) => user.role === "ADMIN")
+                      .map((user) => (
+                        <div
+                          key={user.id}
+                          className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg"
+                        >
+                          <div className="space-y-1">
+                            <h3 className="font-medium">{user.name}</h3>
+                            <p className="text-sm">{user.email}</p>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline">{user.role}</Badge>
+                              <p className="text-xs text-muted-foreground">
+                                Joined on {new Date(user.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center mt-2 md:mt-0">
+                            <Button
+                              variant={user.active ? "outline" : "default"}
+                              size="sm"
+                              onClick={() => toggleUserStatus(user.id, user.active)}
+                              className="mr-2"
+                            >
+                              {user.active ? "Deactivate" : "Activate"}
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              View Details
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </CardContent>
+            </TabsContent>
+          </Tabs>
+          {/* END NESTED TABS */}
         </Card>
       </TabsContent>
 
+      {/* JOBS TAB CONTENT */}
       <TabsContent value="jobs">
         <Card>
           <CardHeader>
@@ -204,8 +290,8 @@ export default function AdminDashboard() {
                       <h3 className="font-medium">{job.title}</h3>
                       <p className="text-sm">{job.company.name}</p>
                       <div className="flex items-center gap-2">
-                        <Badge variant={job.isActive ? "default" : "outline"}>
-                          {job.isActive ? "Active" : "Inactive"}
+                        <Badge variant={job.active ? "default" : "outline"}>
+                          {job.active ? "Active" : "Inactive"}
                         </Badge>
                         <p className="text-xs text-muted-foreground">
                           Posted on {new Date(job.postedAt).toLocaleDateString()}
@@ -214,12 +300,12 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex items-center mt-2 md:mt-0">
                       <Button
-                        variant={job.isActive ? "outline" : "default"}
+                        variant={job.active ? "outline" : "default"}
                         size="sm"
-                        onClick={() => toggleJobStatus(job.id, job.isActive)}
+                        onClick={() => toggleJobStatus(job.id, job.active)}
                         className="mr-2"
                       >
-                        {job.isActive ? "Deactivate" : "Activate"}
+                        {job.active ? "Deactivate" : "Activate"}
                       </Button>
                       <Button variant="outline" size="sm">
                         View Details
@@ -233,6 +319,7 @@ export default function AdminDashboard() {
         </Card>
       </TabsContent>
 
+      {/* STATISTICS TAB CONTENT */}
       <TabsContent value="stats">
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
@@ -254,7 +341,7 @@ export default function AdminDashboard() {
               <BriefcaseIcon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{jobs.filter((j) => j.isActive).length}</div>
+              <div className="text-2xl font-bold">{jobs.filter((j) => j.active).length}</div>
               <p className="text-xs text-muted-foreground">Out of {jobs.length} total jobs</p>
             </CardContent>
           </Card>
@@ -271,5 +358,6 @@ export default function AdminDashboard() {
         </div>
       </TabsContent>
     </Tabs>
+
   )
 }

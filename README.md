@@ -41,13 +41,13 @@ Full stack job search portal based on Spring boot and React
 2. Company Module
    - Registration
    - Login
-   - Post advertisement
+   - Post jobs
    - View applications
 3. Admin Module
    - Login
    - View all users
    - View all applications
-   - View all advertisements
+   - View all jobs
 
 # Functionalities
 a) Login & Registration
@@ -61,3 +61,45 @@ f) E-mail Alerts
 - Frontend: React.js
 - Backend: Spring Boot
 - Database: MySQL
+
+# How to Run the Project
+
+## Prerequisites
+- Node.js (v18 or above recommended)
+- pnpm (or npm/yarn)
+- Java 17 or above
+- Maven
+- MySQL server
+
+## 1. Clone the Repository
+```bash
+git clone <repository-url>
+cd Job-portal
+```
+
+## 2. Set Up the Database
+- Create a MySQL database (e.g., `job_portal`).
+- Update the database credentials in the backend configuration (usually in `src/main/resources/application.properties`).
+
+## 3. Run the Backend
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+- The backend will start on [http://localhost:8080](http://localhost:8080) by default.
+
+## 4. Run the Frontend
+```bash
+cd frontend
+pnpm install # or npm install or yarn install
+pnpm dev     # or npm run dev or yarn dev
+```
+- The frontend will start on [http://localhost:3000](http://localhost:3000) by default.
+
+## 5. Access the Application
+- Open your browser and go to [http://localhost:3000](http://localhost:3000)
+
+## 6. API Documentation
+- Swagger UI is available for backend API documentation. Check the `Swagger UI.pdf` or access `/swagger-ui.html` on the backend server if enabled.
+- request.http contains endpoints
+

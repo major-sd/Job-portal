@@ -147,7 +147,7 @@ export default function Header() {
                 )}
                 {user.role === "COMPANY" && (
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard/jobs">My Job Postings</Link>
+                    <Link href="/dashboard">My Job Postings</Link>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />

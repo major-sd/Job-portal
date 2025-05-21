@@ -21,7 +21,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
+import { api } from "@/lib/api"
+import { LocationCombobox } from "../location-combobox"
+
 
 export default function CompanyDashboard() {
   const [jobs, setJobs] = useState([])
@@ -29,61 +32,77 @@ export default function CompanyDashboard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
+  const [location,setLocation]=useState("")
+  const [applicants,setApplicants]=useState([])
+  const [form, setForm] = useState({
+    title: "",
+    location: "",
+    salaryRange: "",
+    description: "",
+    responsibilities: "",
+    requirements: ""
+  });
+
+  const companyId=JSON.parse(localStorage.getItem("user")).id
+  const onChange = (e:any) => {
+    setForm({ ...form, [e.target.id]: e.target.value });
+  };
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         // In a real implementation, this would fetch from the API
-        // const data = await api.getCompanyJobs();
-        // setJobs(data);
-
-        // Mock data for demonstration
-        setJobs([
-          {
-            id: "1",
-            title: "Senior Frontend Developer",
-            location: "San Francisco, CA (Remote)",
-            salaryRange: "$120,000 - $150,000",
-            isActive: true,
-            applicationsCount: 12,
-            postedAt: "2023-05-01T00:00:00Z",
-          },
-          {
-            id: "2",
-            title: "Backend Engineer",
-            location: "New York, NY",
-            salaryRange: "$110,000 - $140,000",
-            isActive: true,
-            applicationsCount: 8,
-            postedAt: "2023-05-03T00:00:00Z",
-          },
-          {
-            id: "3",
-            title: "UX/UI Designer",
-            location: "Remote",
-            salaryRange: "$90,000 - $120,000",
-            isActive: false,
-            applicationsCount: 5,
-            postedAt: "2023-05-05T00:00:00Z",
-          },
-        ])
+        const data = await api.getCompanyJobs();
+        setJobs(data);
       } finally {
+        setIsLoading(false)
+      }
+    }
+    const fetchApplicants=async ()=>{
+      try{
+  
+        // In a real implementation, this would fetch from the API
+        const data = await api.getApplicantsForACompany(companyId);
+        setApplicants(data);
+      }catch(err){
+          console.log(err)
+        }
+       finally {
         setIsLoading(false)
       }
     }
 
     fetchJobs()
+    fetchApplicants()
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (data1: { responsibilities: string[]; requirements: string[]; title: string; location: string; salaryRange: string; description: string }) => {
+   
     setIsSubmitting(true)
+
+    console.log("data-------",data1)
+
 
     try {
       // In a real implementation, this would submit to the API
       // const formData = new FormData(e.target as HTMLFormElement  this would submit to the API
       // const formData = new FormData(e.target as HTMLFormElement);
-      // await api.createJob(formData);
+      const data={
+        "title": "Senior Frontend Developer",
+        "description":"Required a Developer",
+        "location": "San Francisco, CA (Remote)",
+        "salaryRange": "$100K - $150K",
+        "active": true,
+        "applicationsCount": 12,
+        "requirements":[
+          "Need react knowledge"
+        ],
+        "responsibilities":[
+          "Need react knowledge"
+        ],
+      }
+
+      await api.createJob(data1);
 
       // Mock success for demonstration
       toast({
@@ -101,18 +120,27 @@ export default function CompanyDashboard() {
       setIsSubmitting(false)
     }
   }
+  const salaryRanges = [
+    "$0 - $25K",
+    "$25K - $50K",
+    "$50K - $75K",
+    "$75K - $100K",
+    "$100K - $150K",
+    "$150K - Above",
+  ];
 
   const toggleJobStatus = async (jobId: string, currentStatus: boolean) => {
     try {
       // In a real implementation, this would call the API
-      // await api.updateJobStatus(jobId, !currentStatus);
+      await api.updateJobActiveStatus(jobId, !currentStatus);
 
       // Update local state for demonstration
-      setJobs(jobs.map((job) => (job.id === jobId ? { ...job, isActive: !currentStatus } : job)))
+      setJobs(jobs.map((job) => (job.id === jobId ? { ...job, active: !currentStatus } : job)))
 
       toast({
         title: "Status updated",
         description: `Job has been ${!currentStatus ? "activated" : "deactivated"}.`,
+        variant:'success'
       })
     } catch (error) {
       toast({
@@ -122,6 +150,32 @@ export default function CompanyDashboard() {
       })
     }
   }
+
+  const onFormSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Convert responsibilities/requirements to arrays
+    const responsibilitiesArr = form.responsibilities
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const requirementsArr = form.requirements
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    // Call your submit handler
+    await handleSubmit({
+      ...form,
+      location,
+      responsibilities: responsibilitiesArr,
+      requirements: requirementsArr
+    });
+
+    setIsSubmitting(false);
+    setIsDialogOpen(false);
+  };
 
   return (
     <Tabs defaultValue="jobs">
@@ -140,37 +194,90 @@ export default function CompanyDashboard() {
                 Post New Job
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Post a New Job</DialogTitle>
-                <DialogDescription>Fill out the form below to create a new job posting.</DialogDescription>
+                <DialogDescription>
+                  Fill out the form below to create a new job posting.
+                </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={onFormSubmit}>
                 <div className="grid gap-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="title">Job Title</Label>
-                    <Input id="title" placeholder="e.g. Senior Frontend Developer" required />
+                    <Input
+                      id="title"
+                      value={form.title}
+                      onChange={onChange}
+                      placeholder="e.g. Senior Frontend Developer"
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="location">Location</Label>
-                    <Input id="location" placeholder="e.g. San Francisco, CA (Remote)" required />
+                  <LocationCombobox 
+                    value={location} 
+                    onChange={setLocation} 
+                    placeholder="Location"
+                  />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="salaryRange">Salary Range</Label>
-                    <Input id="salaryRange" placeholder="e.g. $120,000 - $150,000" required />
+                    <select
+                      id="salaryRange"
+                      value={form.salaryRange}
+                      onChange={onChange}
+                      required
+                      className="w-full border rounded px-2 py-2"
+                    >
+                      <option value="">Select salary range</option>
+                      {salaryRanges.map((range) => (
+                        <option key={range} value={range}>
+                          {range}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="description">Job Description</Label>
                     <Textarea
                       id="description"
+                      value={form.description}
+                      onChange={onChange}
                       placeholder="Describe the job role, responsibilities, and requirements"
                       rows={5}
                       required
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="responsibilities">Responsibilities</Label>
+                    <Textarea
+                      id="responsibilities"
+                      value={form.responsibilities}
+                      onChange={onChange}
+                      placeholder="Enter one responsibility per line"
+                      rows={4}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="requirements">Requirements</Label>
+                    <Textarea
+                      id="requirements"
+                      value={form.requirements}
+                      onChange={onChange}
+                      placeholder="Enter one requirement per line"
+                      rows={4}
+                      required
+                    />
+                  </div>
                 </div>
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button type="submit" disabled={isSubmitting}>
@@ -209,7 +316,7 @@ export default function CompanyDashboard() {
                       <CardTitle>{job.title}</CardTitle>
                       <CardDescription>{job.location}</CardDescription>
                     </div>
-                    <Badge variant={job.isActive ? "default" : "outline"}>{job.isActive ? "Active" : "Inactive"}</Badge>
+                    <Badge variant={job.active ? "default" : "outline"}>{job.active ? "Active" : "Inactive"}</Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -229,11 +336,11 @@ export default function CompanyDashboard() {
                 </CardContent>
                 <CardFooter className="flex justify-between">
                   <Button
-                    variant={job.isActive ? "outline" : "default"}
+                    variant={job.active ? "outline" : "default"}
                     size="sm"
-                    onClick={() => toggleJobStatus(job.id, job.isActive)}
+                    onClick={() => toggleJobStatus(job.id, job.active)}
                   >
-                    {job.isActive ? "Deactivate" : "Activate"}
+                    {job.active ? "Deactivate" : "Activate"}
                   </Button>
                   <div className="flex gap-2">
                     <Link href={`/dashboard/jobs/${job.id}/applications`}>
@@ -271,8 +378,18 @@ export default function CompanyDashboard() {
                 </div>
                 <div className="flex items-center mt-2 md:mt-0">
                   <Badge className="mr-2">Pending</Badge>
-                  <Button variant="outline" size="sm">
-                    View Details
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      window.open(
+                        "http://localhost:3000/uploads/resumes/32/b4e22bd0-cc9d-4188-83e3-ae6de46567c3.pdf",
+                        "_blank"
+                      )
+                    }
+                  
+                  >
+                    View Details1
                   </Button>
                 </div>
               </div>
@@ -286,7 +403,16 @@ export default function CompanyDashboard() {
                   <Badge className="mr-2" variant="outline">
                     Reviewing
                   </Badge>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      window.open(
+                        "file:///Users/I528949/uploads/resumes/32/b22b64c0-a433-4204-8a74-d6be5747551a.pdf",
+                        "_blank"
+                      )
+                    }
+                  >
                     View Details
                   </Button>
                 </div>
@@ -301,7 +427,16 @@ export default function CompanyDashboard() {
                   <Badge className="mr-2" variant="secondary">
                     Accepted
                   </Badge>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      window.open(
+                        "file:///Users/I528949/uploads/resumes/32/b22b64c0-a433-4204-8a74-d6be5747551a.pdf",
+                        "_blank"
+                      )
+                    }
+                  >
                     View Details
                   </Button>
                 </div>

@@ -1,5 +1,3 @@
-// const multer = require('multer');
-// const path = require('path');
 // API client for interacting with the backend
 
 const API_BASE_URL = "http://localhost:8080/api"
@@ -47,6 +45,49 @@ export const api = {
     return handleResponse(response)
   },
 
+  async getCompanyJobs() {
+
+    const response = await fetch(`${API_BASE_URL}/jobs/company`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      }
+    })
+    return handleResponse(response)
+  },
+  async getApplicantsForAJob(jobId:number) {
+
+    const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/applications`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      }
+    })
+    return handleResponse(response)
+  },
+
+
+async updateJobActiveStatus(id: string, active: boolean) {
+  const response = await fetch(`${API_BASE_URL}/jobs/${id}/status?active=${active}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  })
+  return handleResponse(response)
+},
+async updateApplicationStatus(id: number, status:string) {
+  const response = await fetch(`${API_BASE_URL}/jobs/applications/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify({status:status})
+  })
+  return handleResponse(response)
+},
+
   async getJobById(id: string) {
     const response = await fetch(`${API_BASE_URL}/jobs/${id}`)
     return handleResponse(response)
@@ -78,7 +119,7 @@ export const api = {
   },
 
   async updateJobStatus(id: string, active: boolean) {
-    const response = await fetch(`${API_BASE_URL}/jobs/${id}/status?active=${active}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/jobs/${parseInt(id,10)}/status?active=${active}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${getToken()}`,
@@ -129,17 +170,20 @@ export const api = {
   },
 
   // Admin endpoints
-  async getAllUsers(params = {}) {
-    const queryParams = new URLSearchParams(params as Record<string, string>)
-    const response = await fetch(`${API_BASE_URL}/admin/users?${queryParams}`, {
+  async getAllUsers() {
+    const response = await fetch(`${API_BASE_URL}/admin/users`, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
       },
     })
     return handleResponse(response)
   },
+    async getAllJobs() {
+    const response = await fetch(`${API_BASE_URL}/jobs`)
+    return handleResponse(response)
+  },
 
-  async updateUserStatus(id: string, active: boolean) {
+  async updateUserStatus(id: number, active: boolean) {
     const response = await fetch(`${API_BASE_URL}/admin/users/${id}/status?active=${active}`, {
       method: "PUT",
       headers: {

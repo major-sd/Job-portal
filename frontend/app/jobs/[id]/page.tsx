@@ -18,36 +18,6 @@ interface JobDetailsPageProps {
 export default function JobDetailsPage({ params }: JobDetailsPageProps) {
   const { id: jobId } = use(params)
   const [job, setJob] = useState(null)
-  // This would be replaced with actual data fetching in a real implementation
-  // const job = {
-  //   id: jobId,
-  //   title: "Senior Frontend Developer",
-  //   company: {
-  //     name: "TechCorp Inc.",
-  //     id: "1",
-  //   },
-  //   location: "San Francisco, CA (Remote)",
-  //   salaryRange: "$120,000 - $150,000",
-  //   description:
-  //     "We are looking for a Senior Frontend Developer to join our team. The ideal candidate will have experience with React, TypeScript, and modern frontend development practices.",
-  //   requirements: [
-  //     "5+ years of experience in frontend development",
-  //     "Strong proficiency in React, TypeScript, and modern JavaScript",
-  //     "Experience with state management libraries (Redux, MobX, etc.)",
-  //     "Knowledge of responsive design and cross-browser compatibility",
-  //     "Familiarity with testing frameworks (Jest, React Testing Library)",
-  //   ],
-  //   responsibilities: [
-  //     "Develop and maintain frontend applications using React and TypeScript",
-  //     "Collaborate with designers and backend developers to implement features",
-  //     "Write clean, maintainable, and efficient code",
-  //     "Participate in code reviews and provide constructive feedback",
-  //     "Stay up-to-date with emerging trends and technologies",
-  //   ],
-  //   postedAt: "2023-05-01T00:00:00Z",
-  // }
-
-  //Implement Fetch the job api for details
   const fetchJobDetails = async () => {
     const data = await api.getJobById(jobId)
     if (!data) {
