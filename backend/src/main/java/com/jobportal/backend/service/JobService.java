@@ -20,6 +20,9 @@ public class JobService {
     private static final Logger logger = LoggerFactory.getLogger(JobService.class);
 
     @Autowired
+    private EmailService emailService;
+
+    @Autowired
     private JobRepository jobRepository;
 
     @Autowired
@@ -35,14 +38,14 @@ public class JobService {
 
     // Search jobs with filters
     public List<Job> searchJobs(String location, String title, String salaryRange) {
-        logger.info("Searching jobs with filters - title: {}, location: {}, salaryRange: {}", 
-                   title, location, salaryRange);
-        
+        logger.info("Searching jobs with filters - title: {}, location: {}, salaryRange: {}",
+                title, location, salaryRange);
+
         // Get jobs filtered by title, location, and salary range using a single query
         return jobRepository.searchJobs(
-            title != null && !title.isEmpty() ? title : null,
-            location != null && !location.isEmpty() ? location : null,
-            salaryRange != null && !salaryRange.isEmpty() ? salaryRange : null
+                title != null && !title.isEmpty() ? title : null,
+                location != null && !location.isEmpty() ? location : null,
+                salaryRange != null && !salaryRange.isEmpty() ? salaryRange : null
         );
     }
 
@@ -105,7 +108,7 @@ public class JobService {
     @Transactional
     public Job updateJobActiveStatus(Long companyId, Long jobId, boolean active) {
         logger.info("Attempting to update job {} active status to {} by company {}", jobId, active, companyId);
-        
+
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> {
                     logger.error("Job {} not found", jobId);
@@ -120,38 +123,66 @@ public class JobService {
         job.setActive(active);
         Job savedJob = jobRepository.save(job);
         logger.info("Successfully updated job active status");
-        
+
         return savedJob;
     }
 
     // Update application status
     @Transactional
-    public Application updateApplicationStatus(Long companyId, Long applicationId, ApplicationStatus status) {
+    public Application updateApplicationStatus(Long companyId, Long applicationId, ApplicationStatus status) { // status is already ApplicationStatus enum
         logger.info("Attempting to update application {} status to {} by company {}", applicationId, status, companyId);
-        
+
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> {
                     logger.error("Application {} not found", applicationId);
                     return new RuntimeException("Application not found");
                 });
 
-        logger.info("Found application. Job company ID: {}, Requesting company ID: {}", 
-                   application.getJob().getCompany().getId(), companyId);
+        // Validate company ownership
+        // Ensure application.getJob() and application.getJob().getCompany() are not null before calling getId()
+        if (application.getJob() == null || application.getJob().getCompany() == null) {
+            logger.error("Application {} or its associated job/company is missing critical information.", applicationId);
+            throw new RuntimeException("Application data is incomplete, cannot verify company ownership.");
+        }
+        Long jobCompanyId = application.getJob().getCompany().getId();
+        logger.info("Found application. Job company ID: {}, Requesting company ID: {}", jobCompanyId, companyId);
 
-        if (!application.getJob().getCompany().getId().equals(companyId)) {
+        if (!jobCompanyId.equals(companyId)) {
             logger.error("Company {} not authorized to update application {}", companyId, applicationId);
             throw new RuntimeException("Not authorized to update this application");
         }
 
-        logger.info("Updating application status from {} to {}", application.getStatus(), status);
-        application.setStatus(status);
-        Application savedApplication = applicationRepository.save(application);
-        logger.info("Successfully updated application status");
-        
-        return savedApplication;
-    }
+        // The 'status' parameter is already an ApplicationStatus enum, no need to parse from a string.
+        // We assign it to newStatus to maintain the existing logic flow.
+        ApplicationStatus newStatus = status;
 
+        // Update status only if it's different
+        if (application.getStatus() != newStatus) {
+            logger.info("Updating application status from {} to {}", application.getStatus(), newStatus);
+            application.setStatus(newStatus);
+            Application savedApplication = applicationRepository.save(application);
+
+            // Send email if status is REVIEWING, ACCEPTED, or REJECTED
+            // The PENDING email is typically sent upon initial application creation.
+            if (newStatus == ApplicationStatus.REVIEWING ||
+                    newStatus == ApplicationStatus.ACCEPTED ||
+                    newStatus == ApplicationStatus.REJECTED) {
+                // Make sure emailService is not null
+                if (emailService != null) {
+                    emailService.sendApplicationStatusUpdateEmails(savedApplication);
+                    logger.info("Notification email sent for application {}", applicationId);
+                } else {
+                    logger.warn("EmailService is null. Cannot send notification email for application {}", applicationId);
+                }
+            }
+
+            return savedApplication;
+        }
+
+        logger.info("No status update needed. Status already {}", newStatus);
+        return application;
+    }
     public long getApplicationsCountForJob(Long jobId) {
         return applicationRepository.countByJobId(jobId);
     }
-} 
+}

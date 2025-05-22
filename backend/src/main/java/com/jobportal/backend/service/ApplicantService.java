@@ -38,6 +38,9 @@ public class ApplicantService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     // Update applicant profile
     public User updateProfile(Long userId, User updatedUser) {
         User existingUser = userRepository.findById(userId)
@@ -122,8 +125,12 @@ public class ApplicantService {
         application.setApplicant(applicant);
         application.setResumeUrl(resumeUrl);
         application.setStatus(ApplicationStatus.PENDING);
+        Application savedApplication = applicationRepository.save(application);
 
-        return applicationRepository.save(application);
+        emailService.sendApplicationStatusUpdateEmails(savedApplication);
+
+        return savedApplication;
+
     }
 
     // Get applicant's applications

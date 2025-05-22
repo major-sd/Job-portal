@@ -6,6 +6,7 @@ import com.jobportal.backend.dto.RegisterRequest;
 import com.jobportal.backend.entity.User;
 import com.jobportal.backend.repository.UserRepository;
 import com.jobportal.backend.security.jwt.JwtUtils;
+import com.jobportal.backend.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,7 @@ public class AuthController {
     @Autowired private UserRepository userRepo;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private JwtUtils jwtUtils;
+    @Autowired private EmailService emailService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Validated @RequestBody RegisterRequest req) {
@@ -36,6 +38,7 @@ public class AuthController {
                 req.getRole()
         );
         userRepo.save(user);
+        emailService.sendRegistrationEmail(user.getEmail(), user.getName());
         return ResponseEntity.ok(Collections.singletonMap("message", "User registered successfully"));
     }
 
