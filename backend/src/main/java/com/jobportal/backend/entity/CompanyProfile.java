@@ -27,6 +27,9 @@ public class CompanyProfile {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
+    @Column(length = 2000)
+    private String bio;
+
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -37,4 +40,5 @@ public class CompanyProfile {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+    
 }

@@ -44,29 +44,36 @@ public class JobController {
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String salaryRange) {
         List<Job> jobs = jobService.searchJobs(location, title, salaryRange);
-        List<Map<String, Object>> response = jobs.stream().map(job -> {
-            // Format the date as ISO-8601 string (2023-05-01T00:00:00Z format)
-            String formattedDate = null;
-            if (job.getPostedAt() != null) {
-                // Convert LocalDateTime to proper ISO-8601 format with Z suffix for UTC
-                formattedDate = job.getPostedAt().toString().replace("T", "T").concat("Z");
-            }
+        List<Map<String, Object>> response = jobs.stream()
+            .sorted((j1, j2) -> {
+                if (j1.getPostedAt() == null && j2.getPostedAt() == null) return 0;
+                if (j1.getPostedAt() == null) return 1;
+                if (j2.getPostedAt() == null) return -1;
+                return j2.getPostedAt().compareTo(j1.getPostedAt()); // Descending order
+            })
+            .map(job -> {
+                // Format the date as ISO-8601 string (2023-05-01T00:00:00Z format)
+                String formattedDate = null;
+                if (job.getPostedAt() != null) {
+                    // Convert LocalDateTime to proper ISO-8601 format with Z suffix for UTC
+                    formattedDate = job.getPostedAt().toString().replace("T", "T").concat("Z");
+                }
 
-            Map<String, Object> jobMap = new HashMap<>();
-            jobMap.put("id", String.valueOf(job.getId()));
-            jobMap.put("title", job.getTitle());
-            jobMap.put("company", Map.of("name", job.getCompany().getName()));
-            jobMap.put("location", job.getLocation());
-            jobMap.put("salaryRange", job.getSalaryRange());
-            jobMap.put("description", job.getDescription());
-            jobMap.put("postedAt", formattedDate);
-            jobMap.put("requirements", job.getRequirements());
-            jobMap.put("responsibilities", job.getResponsibilities());
-            jobMap.put("applicationsCount", jobService.getApplicationsCountForJob(job.getId()));
-            jobMap.put("active", job.isActive());
-            
-            return jobMap;
-        }).toList();
+                Map<String, Object> jobMap = new HashMap<>();
+                jobMap.put("id", String.valueOf(job.getId()));
+                jobMap.put("title", job.getTitle());
+                jobMap.put("company", Map.of("name", job.getCompany().getName()));
+                jobMap.put("location", job.getLocation());
+                jobMap.put("salaryRange", job.getSalaryRange());
+                jobMap.put("description", job.getDescription());
+                jobMap.put("postedAt", formattedDate);
+                jobMap.put("requirements", job.getRequirements());
+                jobMap.put("responsibilities", job.getResponsibilities());
+                jobMap.put("applicationsCount", jobService.getApplicationsCountForJob(job.getId()));
+                jobMap.put("active", job.isActive());
+                
+                return jobMap;
+            }).toList();
         return ResponseEntity.ok(response);
     }
 

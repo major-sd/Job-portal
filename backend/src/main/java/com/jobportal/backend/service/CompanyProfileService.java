@@ -37,6 +37,7 @@ public class CompanyProfileService {
                 .orElseThrow(() -> new RuntimeException("Company profile not found"));
 
         existingProfile.setCompanyName(updatedProfile.getCompanyName());
+        existingProfile.setBio(updatedProfile.getBio());
         
         return companyProfileRepository.save(existingProfile);
     }
@@ -56,4 +57,4 @@ public class CompanyProfileService {
         
         companyProfileRepository.delete(profile);
     }
-} 
+}

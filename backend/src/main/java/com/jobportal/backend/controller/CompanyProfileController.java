@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/company-profile")
 public class CompanyProfileController {
@@ -82,10 +84,19 @@ public class CompanyProfileController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         
         try {
+            CompanyProfile profile = companyProfileService.getCompanyProfile(userDetails.getUser().getId())
+                    .orElseThrow(() -> new RuntimeException("Company profile not found"));
+            
             companyProfileService.deleteCompanyProfile(userDetails.getUser().getId());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body(
+                Map.of(
+                    "message", "Company deleted successfully",
+                    "companyName", profile.getCompanyName()
+                )
+            );
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-} 
+
+}
