@@ -8,6 +8,7 @@ import Link from "next/link"
 import ApplyJobButton from "@/components/apply-job-button"
 import { use, useEffect, useState } from "react"
 import { api } from "@/lib/api"
+import { useAuth } from "@/context/auth-context"
 
 interface JobDetailsPageProps {
   params: {
@@ -18,6 +19,7 @@ interface JobDetailsPageProps {
 export default function JobDetailsPage({ params }: JobDetailsPageProps) {
   const { id: jobId } = use(params)
   const [job, setJob] = useState(null)
+  const {user,logout}=useAuth()
   const fetchJobDetails = async () => {
     const data = await api.getJobById(jobId)
     if (!data) {
@@ -95,7 +97,7 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
         </div>
 
         <div className="space-y-6">
-          <Card>
+          {user?.role != 'COMPANY' &&<Card>
             <CardHeader>
               <CardTitle>Apply for this job</CardTitle>
               <CardDescription>Submit your application to {job.company.name}</CardDescription>
@@ -103,7 +105,7 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
             <CardContent>
               <ApplyJobButton jobId={jobId} />
             </CardContent>
-          </Card>
+          </Card>}
 
           <Card>
             <CardHeader>

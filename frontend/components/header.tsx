@@ -14,13 +14,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { BriefcaseIcon, MenuIcon } from "lucide-react"
+import { BriefcaseIcon, MenuIcon ,User} from "lucide-react"
 
 export default function Header() {
   const pathname = usePathname()
   const { user, logout } = useAuth()
   const [isScrolled, setIsScrolled] = useState(false)
-
+  console.log("user",user)
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10)
@@ -51,15 +51,11 @@ export default function Header() {
                   <BriefcaseIcon className="h-5 w-5" />
                   <span>Job Portal</span>
                 </Link>
-                <Link href="/jobs" className={`hover:text-primary ${pathname === "/jobs" ? "text-primary" : ""}`}>
+                {user?.role != 'COMPANY' && <Link href="/jobs" className={`hover:text-primary ${pathname === "/jobs" ? "text-primary" : ""}`}>
                   Jobs
-                </Link>
-                <Link
-                  href="/companies"
-                  className={`hover:text-primary ${pathname === "/companies" ? "text-primary" : ""}`}
-                >
-                  Companies
-                </Link>
+                </Link>}
+
+
                 <Link href="/about" className={`hover:text-primary ${pathname === "/about" ? "text-primary" : ""}`}>
                   About
                 </Link>
@@ -87,18 +83,21 @@ export default function Header() {
             <span>Job Portal</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm">
+               {user?.role != 'COMPANY' && 
             <Link
               href="/jobs"
               className={`hover:text-primary ${pathname === "/jobs" ? "text-primary font-medium" : ""}`}
             >
               Jobs
             </Link>
+               }  
+            {user?.role != 'COMPANY' &&
             <Link
               href="/companies"
               className={`hover:text-primary ${pathname === "/companies" ? "text-primary font-medium" : ""}`}
             >
               Companies
-            </Link>
+            </Link>}
             <Link
               href="/about"
               className={`hover:text-primary ${pathname === "/about" ? "text-primary font-medium" : ""}`}
@@ -123,8 +122,8 @@ export default function Header() {
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarFallback>
-                      {user.name
-                        ?.toUpperCase()}
+                      
+                    <User className="h-5 w-5"/>
                     </AvatarFallback>
                   </Avatar>
                 </Button>

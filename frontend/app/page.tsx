@@ -10,7 +10,9 @@ import JobList from "@/components/job-list"
 import { LocationCombobox } from "@/components/location-combobox"
 import { useState, useEffect } from "react"
 import { api } from "@/lib/api"
-
+import { useAuth } from "@/context/auth-context"
+import { Router } from "next/router"
+import { useRouter } from "next/navigation"
 export default function Home() {
   const [location, setLocation] = useState("")
   const [title, setTitle] = useState("")
@@ -18,7 +20,8 @@ export default function Home() {
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(false)
   const [filterParams, setFilterParams] = useState(null)
-
+  const { user, logout } = useAuth()
+  const router=useRouter()
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
     setLoading(true)
@@ -37,6 +40,14 @@ export default function Home() {
       setLoading(false)
     }
   }
+  const handleClick=()=>{
+    console.log("handleClick called")
+    if(user?.role == 'COMPANY'){
+      router.push("/dashboard")
+    }else{
+      router.push("/dashboard")
+    }
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -45,14 +56,15 @@ export default function Home() {
           <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
-                Find Your Dream Job Today
+                { user?.role == 'APPLICANT' ? 'Find Your Dream Job Today' : user?.role == 'COMPANY' ? 'Hire Top Talent Faster' :user?.role == 'ADMIN' ? 'Manage and Monitor with Ease': 'Find Your Dream Job Today'}
               </h1>
               <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                Browse thousands of job listings and find the perfect match for your skills and experience.
+                { user?.role == 'APPLICANT' ? 'Browse thousands of job listings and find the perfect match for your skills and experience.' : user?.role == 'COMPANY' ? 'Oversee platform activity, ensure smooth operations, and support users seamlessly from one powerful dashboard.' :user?.role == 'ADMIN' ? 'Oversee platform activity, ensure smooth operations, and support users seamlessly from one powerful dashboard.': 'Browse thousands of job listings and find the perfect match for your skills and experience.'}
+                
               </p>
             </div>
             <div className="w-full max-w-3xl space-y-2">
-              <form className="flex flex-col gap-2 md:flex-row" onSubmit={handleSubmit}>
+              {(user?.role == 'APPLICANT' || user?.role == undefined) ? (<form className="flex flex-col gap-2 md:flex-row" onSubmit={handleSubmit}>
                 <div className="flex-1">
                   <Input placeholder="Job title or keywords" value={title} onChange={e => setTitle(e.target.value)} />
                 </div>
@@ -82,7 +94,8 @@ export default function Home() {
                   <SearchIcon className="mr-2 h-4 w-4" />
                   {loading ? "Searching..." : "Search"}
                 </Button>
-              </form>
+              </form>) : <Button onClick={handleClick}> Get Started</Button>}
+
             </div>
           </div>
         </div>
@@ -91,11 +104,16 @@ export default function Home() {
       <section className="container px-4 md:px-6 py-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold tracking-tight">{!filterParams ? "Featured Jobs" : "Search Results"}</h2>
-          <Link href="/jobs">
+          {user?.role != 'COMPANY' && <Link href="/jobs">
             <Button variant="outline">View All Jobs</Button>
-          </Link>
+          </Link>}
         </div>
-        <JobList jobs={jobs} limit={3} loading={loading} filterParams={filterParams} />
+        {user?.role == 'COMPANY' ? (
+          <JobList jobs={jobs.filter(job=> job?.company?.name == user.name)} limit={3} loading={loading} filterParams={filterParams} />
+        )
+        :
+        (<JobList jobs={jobs} limit={3} loading={loading} filterParams={filterParams} />)}
+        
       </section>
 
       <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
