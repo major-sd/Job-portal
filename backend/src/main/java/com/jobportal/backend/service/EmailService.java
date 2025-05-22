@@ -22,6 +22,14 @@ public class EmailService {
         this.emailSender = emailSender;
     }
 
+    public void sendRegistrationEmail(String toEmail, String userName) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Registration Successful");
+        message.setText("Hi " + userName + ",\n\nYou have successfully registered to our platform.\n\nThanks,\nTeam");
+        emailSender.send(message);
+    }
+
     public void sendApplicationStatusUpdateEmails(Application application) {
         ApplicationStatus status = application.getStatus();
         String applicantEmail = application.getApplicant().getEmail();
