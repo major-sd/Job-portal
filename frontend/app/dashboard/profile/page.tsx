@@ -104,12 +104,12 @@ export default function ProfilePage() {
                 )}
                 {user.role === "COMPANY" && (
                   <Button variant="ghost" className="justify-start" asChild>
-                    <Link href="/dashboard/jobs">My Job Postings</Link>
+                    <Link href="/dashboard">My Job Postings</Link>
                   </Button>
                 )}
-                <Button variant="ghost" className="justify-start" asChild>
+                {/* <Button variant="ghost" className="justify-start" asChild>
                   <Link href="/dashboard/security">Security</Link>
-                </Button>
+                </Button> */}
               </nav>
             </CardContent>
           </Card>
