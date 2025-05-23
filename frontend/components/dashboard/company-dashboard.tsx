@@ -43,6 +43,7 @@ export default function CompanyDashboard() {
     requirements: ""
   });
   const [editJobId, setEditJobId] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const companyId=JSON.parse(localStorage.getItem("user")).id
   const onChange = (e:any) => {
@@ -198,6 +199,13 @@ export default function CompanyDashboard() {
     setIsDialogOpen(true);
   };
 
+  // Sort jobs by postedAt
+  const sortedJobs = [...jobs].sort((a, b) => {
+    const dateA = new Date(a.postedAt).getTime();
+    const dateB = new Date(b.postedAt).getTime();
+    return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+  });
+
   return (
     <Tabs defaultValue="jobs">
       <TabsList className="mb-4">
@@ -208,106 +216,115 @@ export default function CompanyDashboard() {
       <TabsContent value="jobs">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Job Postings</h2>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={openNewJobDialog}>
-                <PlusIcon className="mr-2 h-4 w-4" />
-                Post New Job
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{editJobId ? "Edit Job" : "Post a New Job"}</DialogTitle>
-                <DialogDescription>
-                  Fill out the form below to {editJobId ? "edit this job posting" : "create a new job posting"}.
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={onFormSubmit}>
-                <div className="grid gap-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Job Title</Label>
-                    <Input
-                      id="title"
-                      value={form.title}
-                      onChange={onChange}
-                      placeholder="e.g. Senior Frontend Developer"
-                      required
+          <div className="flex gap-2 items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+            >
+              Sort by Date: {sortOrder === 'asc' ? 'Oldest First' : 'Newest First'}
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={openNewJobDialog}>
+                  <PlusIcon className="mr-2 h-4 w-4" />
+                  Post New Job
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{editJobId ? "Edit Job" : "Post a New Job"}</DialogTitle>
+                  <DialogDescription>
+                    Fill out the form below to {editJobId ? "edit this job posting" : "create a new job posting"}.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={onFormSubmit}>
+                  <div className="grid gap-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Job Title</Label>
+                      <Input
+                        id="title"
+                        value={form.title}
+                        onChange={onChange}
+                        placeholder="e.g. Senior Frontend Developer"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="location">Location</Label>
+                    <LocationCombobox 
+                      value={location} 
+                      onChange={setLocation} 
+                      placeholder="Location"
                     />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="salaryRange">Salary Range</Label>
+                      <select
+                        id="salaryRange"
+                        value={form.salaryRange}
+                        onChange={onChange}
+                        required
+                        className="w-full border rounded px-2 py-2"
+                      >
+                        <option value="">Select salary range</option>
+                        {salaryRanges.map((range) => (
+                          <option key={range} value={range}>
+                            {range}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Job Description</Label>
+                      <Textarea
+                        id="description"
+                        value={form.description}
+                        onChange={onChange}
+                        placeholder="Describe the job role, responsibilities, and requirements"
+                        rows={5}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="responsibilities">Responsibilities</Label>
+                      <Textarea
+                        id="responsibilities"
+                        value={form.responsibilities}
+                        onChange={onChange}
+                        placeholder="Enter one responsibility per line"
+                        rows={4}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="requirements">Requirements</Label>
+                      <Textarea
+                        id="requirements"
+                        value={form.requirements}
+                        onChange={onChange}
+                        placeholder="Enter one requirement per line"
+                        rows={4}
+                        required
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Location</Label>
-                  <LocationCombobox 
-                    value={location} 
-                    onChange={setLocation} 
-                    placeholder="Location"
-                  />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="salaryRange">Salary Range</Label>
-                    <select
-                      id="salaryRange"
-                      value={form.salaryRange}
-                      onChange={onChange}
-                      required
-                      className="w-full border rounded px-2 py-2"
+                  <DialogFooter>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => { setIsDialogOpen(false); setEditJobId(null); }}
                     >
-                      <option value="">Select salary range</option>
-                      {salaryRanges.map((range) => (
-                        <option key={range} value={range}>
-                          {range}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Job Description</Label>
-                    <Textarea
-                      id="description"
-                      value={form.description}
-                      onChange={onChange}
-                      placeholder="Describe the job role, responsibilities, and requirements"
-                      rows={5}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="responsibilities">Responsibilities</Label>
-                    <Textarea
-                      id="responsibilities"
-                      value={form.responsibilities}
-                      onChange={onChange}
-                      placeholder="Enter one responsibility per line"
-                      rows={4}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="requirements">Requirements</Label>
-                    <Textarea
-                      id="requirements"
-                      value={form.requirements}
-                      onChange={onChange}
-                      placeholder="Enter one requirement per line"
-                      rows={4}
-                      required
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => { setIsDialogOpen(false); setEditJobId(null); }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? (editJobId ? "Saving..." : "Posting...") : (editJobId ? "Save Changes" : "Post Job")}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? (editJobId ? "Saving..." : "Posting...") : (editJobId ? "Save Changes" : "Post Job")}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -318,7 +335,7 @@ export default function CompanyDashboard() {
                 <p className="mt-2 text-sm text-muted-foreground">Loading your job postings...</p>
               </CardContent>
             </Card>
-          ) : jobs.length === 0 ? (
+          ) : sortedJobs.length === 0 ? (
             <Card>
               <CardContent className="p-6 text-center">
                 <BriefcaseIcon className="h-12 w-12 mx-auto text-muted-foreground" />
@@ -329,7 +346,7 @@ export default function CompanyDashboard() {
               </CardContent>
             </Card>
           ) : (
-            jobs.map((job) => (
+            sortedJobs.map((job) => (
               <Card key={job.id}>
                 <CardHeader>
                   <div className="flex justify-between items-start">

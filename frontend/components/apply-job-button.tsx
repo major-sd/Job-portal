@@ -76,7 +76,7 @@ export default function ApplyJobButton({ jobId }: ApplyJobButtonProps) {
     } catch (error) {
       toast({
         title: "Application failed",
-        description: "There was an error submitting your application. Please try again.",
+        description: "You already applied for this job or there was an error submitting your application.",
         variant: "destructive",
       })
     } finally {
