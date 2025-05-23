@@ -27,9 +27,9 @@ export default function RootLayout({
           <AuthProvider>
             <div className="flex min-h-screen flex-col">
               <Header />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 mx-auto max-w-screen-2xl w-full px-4">{children}</main>
               <footer className="border-t py-6">
-                <div className="container flex flex-col items-center justify-between gap-4 md:flex-row">
+                <div className="w-full max-w-screen-2xl mx-auto flex flex-col items-center justify-center px-4">
                   <p className="text-center text-sm text-muted-foreground md:text-left">
                     &copy; {new Date().getFullYear()} Job Portal. All rights reserved.
                   </p>
