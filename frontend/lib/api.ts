@@ -128,6 +128,18 @@ async updateApplicationStatus(id: number, status:string) {
     return handleResponse(response)
   },
 
+  async updateJob(id: string, data: any) {
+    const response = await fetch(`${API_BASE_URL}/jobs/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify(data),
+    })
+    return handleResponse(response)
+  },
+
   // Applicant endpoints
   async getApplicantProfile() {
     const response = await fetch(`${API_BASE_URL}/applicant/profile`, {

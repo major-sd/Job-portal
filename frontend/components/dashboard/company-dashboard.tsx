@@ -42,6 +42,7 @@ export default function CompanyDashboard() {
     responsibilities: "",
     requirements: ""
   });
+  const [editJobId, setEditJobId] = useState<string | null>(null);
 
   const companyId=JSON.parse(localStorage.getItem("user")).id
   const onChange = (e:any) => {
@@ -76,6 +77,20 @@ export default function CompanyDashboard() {
     fetchApplicants()
   }, [])
 
+  const openEditDialog = (job) => {
+    setForm({
+      title: job.title || "",
+      location: job.location || "",
+      salaryRange: job.salaryRange || "",
+      description: job.description || "",
+      responsibilities: (job.responsibilities || []).join("\n"),
+      requirements: (job.requirements || []).join("\n"),
+    });
+    setLocation(job.location || "");
+    setEditJobId(job.id);
+    setIsDialogOpen(true);
+  };
+
   const handleSubmit = async (data1: { responsibilities: string[]; requirements: string[]; title: string; location: string; salaryRange: string; description: string }) => {
    
     setIsSubmitting(true)
@@ -84,40 +99,32 @@ export default function CompanyDashboard() {
 
 
     try {
-      // In a real implementation, this would submit to the API
-      // const formData = new FormData(e.target as HTMLFormElement  this would submit to the API
-      // const formData = new FormData(e.target as HTMLFormElement);
-      const data={
-        "title": "Senior Frontend Developer",
-        "description":"Required a Developer",
-        "location": "San Francisco, CA (Remote)",
-        "salaryRange": "$100K - $150K",
-        "active": true,
-        "applicationsCount": 12,
-        "requirements":[
-          "Need react knowledge"
-        ],
-        "responsibilities":[
-          "Need react knowledge"
-        ],
+      if (editJobId) {
+        await api.updateJob(editJobId, data1);
+        toast({
+          title: "Job updated",
+          description: "Your job has been updated successfully.",
+        });
+      } else {
+        await api.createJob(data1);
+        toast({
+          title: "Job posted",
+          description: "Your job has been posted successfully.",
+        });
       }
-
-      await api.createJob(data1);
-
-      // Mock success for demonstration
-      toast({
-        title: "Job posted",
-        description: "Your job has been posted successfully.",
-      })
-      setIsDialogOpen(false)
+      setIsDialogOpen(false);
+      setEditJobId(null);
+      // Optionally refresh jobs
+      const data = await api.getCompanyJobs();
+      setJobs(data);
     } catch (error) {
       toast({
         title: "Error",
-        description: "There was an error posting your job. Please try again.",
+        description: "There was an error saving your job. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
   const salaryRanges = [
@@ -177,6 +184,20 @@ export default function CompanyDashboard() {
     setIsDialogOpen(false);
   };
 
+  const openNewJobDialog = () => {
+    setForm({
+      title: "",
+      location: "",
+      salaryRange: "",
+      description: "",
+      responsibilities: "",
+      requirements: "",
+    });
+    setLocation("");
+    setEditJobId(null);
+    setIsDialogOpen(true);
+  };
+
   return (
     <Tabs defaultValue="jobs">
       <TabsList className="mb-4">
@@ -189,16 +210,16 @@ export default function CompanyDashboard() {
           <h2 className="text-xl font-bold">Job Postings</h2>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button onClick={openNewJobDialog}>
                 <PlusIcon className="mr-2 h-4 w-4" />
                 Post New Job
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Post a New Job</DialogTitle>
+                <DialogTitle>{editJobId ? "Edit Job" : "Post a New Job"}</DialogTitle>
                 <DialogDescription>
-                  Fill out the form below to create a new job posting.
+                  Fill out the form below to {editJobId ? "edit this job posting" : "create a new job posting"}.
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={onFormSubmit}>
@@ -276,12 +297,12 @@ export default function CompanyDashboard() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setIsDialogOpen(false)}
+                    onClick={() => { setIsDialogOpen(false); setEditJobId(null); }}
                   >
                     Cancel
                   </Button>
                   <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Posting..." : "Post Job"}
+                    {isSubmitting ? (editJobId ? "Saving..." : "Posting...") : (editJobId ? "Save Changes" : "Post Job")}
                   </Button>
                 </DialogFooter>
               </form>
@@ -348,11 +369,9 @@ export default function CompanyDashboard() {
                         View Applications
                       </Button>
                     </Link>
-                    <Link href={`/dashboard/jobs/${job.id}/edit`}>
-                      <Button variant="outline" size="sm">
-                        Edit
-                      </Button>
-                    </Link>
+                    <Button variant="outline" size="sm" onClick={() => openEditDialog(job)}>
+                      Edit
+                    </Button>
                   </div>
                 </CardFooter>
               </Card>
