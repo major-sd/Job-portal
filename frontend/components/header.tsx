@@ -36,8 +36,8 @@ export default function Header() {
         isScrolled ? "bg-background/95 backdrop-blur-sm border-b" : "bg-background"
       }`}
     >
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-        <div className="flex items-center gap-2">
+      <div className="container flex h-16 mx-auto items-center justify-between">
+        <div className="flex items-center gap-20">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="md:hidden">
