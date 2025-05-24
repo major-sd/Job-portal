@@ -91,6 +91,13 @@ export default function Header() {
               Jobs
             </Link>
                }  
+            {user?.role != 'COMPANY' &&
+            <Link
+              href="/companies"
+              className={`hover:text-primary ${pathname === "/companies" ? "text-primary font-medium" : ""}`}
+            >
+              Companies
+            </Link>}
             <Link
               href="/about"
               className={`hover:text-primary ${pathname === "/about" ? "text-primary font-medium" : ""}`}
