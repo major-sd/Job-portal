@@ -209,8 +209,8 @@ export default function CompanyDashboard() {
   return (
     <Tabs defaultValue="jobs">
       <TabsList className="mb-4">
-        <TabsTrigger value="jobs">My Job Postings</TabsTrigger>
-        <TabsTrigger value="applications">Applications</TabsTrigger>
+        <TabsTrigger value="jobs">{companyId ? `${companyName || "Company"} Job Postings` : "My Job Postings"}</TabsTrigger>
+        {/* {!companyId && <TabsTrigger value="applications">Applications</TabsTrigger>} */}
       </TabsList>
 
       <TabsContent value="jobs">
