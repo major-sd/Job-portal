@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { api } from "@/lib/api"
 import { LocationCombobox } from "../location-combobox"
+import { useAuth } from "@/context/auth-context"
 
 
 export default function CompanyDashboard() {
@@ -34,6 +35,7 @@ export default function CompanyDashboard() {
   const { toast } = useToast()
   const [location,setLocation]=useState("")
   const [applicants,setApplicants]=useState([])
+  const { user } = useAuth()
   const [form, setForm] = useState({
     title: "",
     location: "",
@@ -105,12 +107,14 @@ export default function CompanyDashboard() {
         toast({
           title: "Job updated",
           description: "Your job has been updated successfully.",
+          variant: 'success'
         });
       } else {
         await api.createJob(data1);
         toast({
           title: "Job posted",
           description: "Your job has been posted successfully.",
+          variant: 'success'  
         });
       }
       setIsDialogOpen(false);
@@ -209,7 +213,7 @@ export default function CompanyDashboard() {
   return (
     <Tabs defaultValue="jobs">
       <TabsList className="mb-4">
-        <TabsTrigger value="jobs">{companyId ? `${companyName || "Company"} Job Postings` : "My Job Postings"}</TabsTrigger>
+        <TabsTrigger value="jobs">{companyId ? `${user.name || "Company"} Job Postings` : "My Job Postings"}</TabsTrigger>
         {/* {!companyId && <TabsTrigger value="applications">Applications</TabsTrigger>} */}
       </TabsList>
 

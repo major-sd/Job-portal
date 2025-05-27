@@ -38,6 +38,9 @@ export default function JobsPage() {
   }
 
   const handleRefresh = () => {
+    setTitle("")
+    setLocation("")
+    setSalaryRange("")
     setFilterParams(null)
   // Optionally re-fetch data or reset filterParams here
 };

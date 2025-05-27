@@ -159,9 +159,9 @@ export default function AdminDashboard() {
                             >
                               {user.active ? "Deactivate" : "Activate"}
                             </Button>
-                            <Button variant="outline" size="sm">
+                            {/* <Button variant="outline" size="sm">
                               View Details
-                            </Button>
+                            </Button> */}
                           </div>
                         </div>
                       ))}
@@ -205,9 +205,9 @@ export default function AdminDashboard() {
                             >
                               {user.active ? "Deactivate" : "Activate"}
                             </Button>
-                            <Button variant="outline" size="sm">
+                            {/* <Button variant="outline" size="sm">
                               View Details
-                            </Button>
+                            </Button> */}
                           </div>
                         </div>
                       ))}
@@ -251,9 +251,9 @@ export default function AdminDashboard() {
                             >
                               {user.active ? "Deactivate" : "Activate"}
                             </Button>
-                            <Button variant="outline" size="sm">
+                            {/* <Button variant="outline" size="sm">
                               View Details
-                            </Button>
+                            </Button> */}
                           </div>
                         </div>
                       ))}
@@ -307,9 +307,9 @@ export default function AdminDashboard() {
                       >
                         {job.active ? "Deactivate" : "Activate"}
                       </Button>
-                      <Button variant="outline" size="sm">
+                      {/* <Button variant="outline" size="sm">
                         View Details
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 ))}
