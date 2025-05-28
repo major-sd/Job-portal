@@ -47,12 +47,17 @@ export default function RegisterPage() {
         description: "Your account has been created. Please log in.",
       })
       router.push("/auth/login")
-    } catch (error) {
+    } catch (error: any) {
+            const errorMessage =
+              error?.response?.data?.message || error?.response?.data || "There was an error creating your account."
       toast({
-        title: "Registration failed",
-        description: "There was an error creating your account. Please try again.",
-        variant: "destructive",
-      })
+              title: "Registration failed",
+              description:
+                errorMessage === "Email is already in use"
+                  ? "Already Registered, Please proceed to login."
+                  : errorMessage,
+              variant: "destructive",
+            })
     } finally {
       setIsLoading(false)
     }

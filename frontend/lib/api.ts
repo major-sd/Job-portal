@@ -1,6 +1,6 @@
 // API client for interacting with the backend
 
-const API_BASE_URL = "http://localhost:8080/api"
+const API_BASE_URL = "http://localhost:8081/api"
 
 // Helper function to get the auth token
 const getToken = () => localStorage.getItem("token")

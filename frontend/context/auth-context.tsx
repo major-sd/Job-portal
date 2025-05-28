@@ -63,7 +63,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // In a real implementation, this would call the API
       const { token, user } = await api.login({ email, password });
-      console.log("user",user)
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       setUser(user);

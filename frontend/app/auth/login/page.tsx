@@ -23,26 +23,30 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      await login(email, password)
+      await login(email, password);
+
       toast({
         title: "Login successful",
         description: "You have been logged in successfully.",
-      })
-      router.push("/dashboard")
-    } catch (error) {
+      });
+      router.push("/dashboard");
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || error?.response?.data?.error || "Something went wrong";
+
       toast({
         title: "Login failed",
-        description: "Invalid email or password. Please try again.",
+        description: errorMessage,
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="container flex items-center justify-center min-h-[80vh] px-4 md:px-6">

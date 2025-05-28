@@ -29,7 +29,9 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Validated @RequestBody RegisterRequest req) {
         if (userRepo.findByEmail(req.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email is already in use");
+            return ResponseEntity
+                    .badRequest()
+                    .body(Collections.singletonMap("message", "Already Registered, Please proceed to login"));
         }
         User user = new User(
                 req.getName(),
@@ -45,6 +47,13 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Validated @RequestBody LoginRequest req) {
         Optional<User> userOpt = userRepo.findByEmail(req.getEmail());
+
+        if (userOpt.isEmpty()) {
+            // User not found — show "Please register first"
+            return ResponseEntity
+                    .status(404)
+                    .body(Collections.singletonMap("message", "Please register first"));
+        }
         if (userOpt.isEmpty() ||
                 !passwordEncoder.matches(req.getPassword(), userOpt.get().getPassword())) {
             return ResponseEntity
