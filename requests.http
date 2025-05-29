@@ -468,3 +468,34 @@ GET http://localhost:8080/api/jobs?salaryRange=$150K+
 
 ### Combined search
 GET http://localhost:8080/api/jobs?title=developer&location=remote&salaryRange=$75K - $100K 
+
+
+
+#####################################################
+### 7. Profile Operations
+#####################################################
+
+### Get current user's profile
+GET http://localhost:8080/api/profiles/me
+Authorization: Bearer {{applicant_token}}
+
+### Get any user's profile
+GET http://localhost:8080/api/profiles/{userId}
+
+### Update current user's profile
+PUT http://localhost:8080/api/profiles/me
+Authorization: Bearer {{applicant_token}}
+
+{
+    "name": "John Doe",
+    "bio": "Experienced software developer with 5 years of experience in Java and Spring Boot"
+}
+
+### Update any user's profile by Admin
+PUT http://localhost:8080/api/profiles/{userId}
+Authorization: Bearer {{admin_token}}
+
+{
+    "name": "John Doe",
+    "bio": "Experienced software developer with 5 years of experience in Java and Spring Boot"
+}

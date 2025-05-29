@@ -55,6 +55,18 @@ export const api = {
     })
     return handleResponse(response)
   },
+  async updateProfile(data) {
+
+    const response = await fetch(`${API_BASE_URL}/profiles/me`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify(data)
+    })
+    return handleResponse(response)
+  },
   async getApplicantsForAJob(jobId:number) {
 
     const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/applications`, {

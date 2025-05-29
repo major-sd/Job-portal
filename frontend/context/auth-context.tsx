@@ -115,9 +115,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateUserProfile = async (data: Partial<User>) => {
     try {
       // In a real implementation, this would call the API
-      // const updatedUser = await api.updateProfile(data);
-      // localStorage.setItem("user", JSON.stringify(updatedUser));
-      // setUser(updatedUser);
+      const updatedUser = await api.updateProfile(data);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
 
       // Mock update for demonstration
       if (user) {

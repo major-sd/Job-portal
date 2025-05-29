@@ -19,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(
@@ -54,12 +56,15 @@ public class SecurityConfig {
         logger.debug("Configuring security filter chain");
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/jobs").permitAll()
                         .requestMatchers("/api/jobs/").permitAll()
                         .requestMatchers("/api/jobs/{id}").permitAll()
+                        .requestMatchers("/api/profiles/{userId}").permitAll()
+                        .requestMatchers("/api/profiles/me").authenticated()
                         .requestMatchers("/api/jobs/{id}/status").hasAuthority("ROLE_COMPANY")
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/applicant/**").hasAuthority("ROLE_APPLICANT")
