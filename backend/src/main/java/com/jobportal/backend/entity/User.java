@@ -1,6 +1,5 @@
 package com.jobportal.backend.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jobportal.backend.enums.Role;
 
 import jakarta.persistence.*;
@@ -33,9 +32,8 @@ public class User {
     @Column(nullable = false)
     private boolean active = true;  // Default to active when user is created
 
-    @JsonManagedReference
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private CompanyProfile companyProfile;
+    @Column(length = 1000)
+    private String bio;  // User's bio/description
 
     // ——— Constructors ———
     public User() {}
@@ -93,19 +91,19 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    public CompanyProfile getCompanyProfile() {
-        return companyProfile;
-    }
-
-    public void setCompanyProfile(CompanyProfile companyProfile) {
-        this.companyProfile = companyProfile;
-    }
-
     public boolean isActive() {
         return active;
     }
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 }

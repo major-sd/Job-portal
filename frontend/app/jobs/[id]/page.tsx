@@ -113,14 +113,13 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                TechCorp Inc. is a leading technology company specializing in innovative software solutions for
-                businesses of all sizes.
+              {job.company.bio}
               </p>
               <Separator className="my-4" />
               <Link href={`/companies/${job.company?.id}`}>
-                <Button variant="outline" className="w-full">
+                {/* <Button variant="outline" className="w-full">
                   View Company Profile
-                </Button>
+                </Button> */}
               </Link>
             </CardContent>
           </Card>

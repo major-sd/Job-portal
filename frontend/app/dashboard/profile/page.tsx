@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 
 export default function ProfilePage() {
@@ -21,7 +21,6 @@ export default function ProfilePage() {
   const [bio, setBio] = useState("")
   const [resumeUrl, setResumeUrl] = useState("")
   const [isUpdating, setIsUpdating] = useState(false)
-  const { toast } = useToast()
   const router = useRouter()
 
   useEffect(() => {
@@ -48,6 +47,7 @@ export default function ProfilePage() {
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully.",
+        variant: "success"
       })
     } catch (error) {
       toast({
@@ -143,7 +143,7 @@ export default function ProfilePage() {
                   rows={4}
                 />
               </div>
-              {user.role === "APPLICANT" && (
+              {/* {user.role === "APPLICANT" && (
                 <div className="space-y-2">
                   <Label htmlFor="resume">Resume</Label>
                   <div className="flex items-center gap-2">
@@ -153,7 +153,7 @@ export default function ProfilePage() {
                     <p className="text-sm text-muted-foreground">Current resume: {resumeUrl.split("/").pop()}</p>
                   )}
                 </div>
-              )}
+              )} */}
             </CardContent>
             <CardFooter>
               <Button type="submit" disabled={isUpdating}>
