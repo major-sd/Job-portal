@@ -62,7 +62,10 @@ public class JobController {
                 Map<String, Object> jobMap = new HashMap<>();
                 jobMap.put("id", String.valueOf(job.getId()));
                 jobMap.put("title", job.getTitle());
-                jobMap.put("company", Map.of("name", job.getCompany().getName()));
+                jobMap.put("company", Map.of(
+                    "name", job.getCompany().getName(),
+                    "bio", job.getCompany().getBio() != null ? job.getCompany().getBio() : "No Description"
+                ));
                 jobMap.put("location", job.getLocation());
                 jobMap.put("salaryRange", job.getSalaryRange());
                 jobMap.put("description", job.getDescription());
@@ -91,7 +94,10 @@ public class JobController {
                     Map<String, Object> response = Map.of(
                         "id", String.valueOf(job.getId()),
                         "title", job.getTitle(),
-                        "company", Map.of("name", job.getCompany().getName()),
+                        "company", Map.of(
+                            "name", job.getCompany().getName(),
+                            "bio", job.getCompany().getBio() != null ? job.getCompany().getBio() : "No Description"
+                        ),
                         "location", job.getLocation(),
                         "salaryRange", job.getSalaryRange(),
                         "description", job.getDescription(),
@@ -144,7 +150,10 @@ public class JobController {
         List<Map<String, Object>> response = jobs.stream().map(job -> Map.ofEntries(
             Map.entry("id", String.valueOf(job.getId())),
             Map.entry("title", job.getTitle()),
-            Map.entry("company", Map.of("name", job.getCompany().getName())),
+            Map.entry("company", Map.of(
+                "name", job.getCompany().getName(),
+                "bio", job.getCompany().getBio() != null ? job.getCompany().getBio() : "No Description"
+            )),
             Map.entry("location", job.getLocation()),
             Map.entry("salaryRange", job.getSalaryRange()),
             Map.entry("description", job.getDescription()),
