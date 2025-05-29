@@ -25,15 +25,17 @@ public class EmailService {
     public void sendRegistrationEmail(String toEmail, String userName) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
-        message.setSubject("Welcome to Your Dream Job Journey!");
+        message.setSubject("Welcome to JobPortal – Let’s Get Started!");
+
         message.setText(
                 "Hi " + userName + ",\n\n" +
-                        "Welcome aboard!\n\n" +
-                        "You’ve successfully registered on our job portal – your first step toward landing your dream job. We're thrilled to have you join our community of ambitious professionals.\n\n" +
-                        "Start exploring top job opportunities, connect with the right employers, and let your career take flight.\n\n" +
-                        "If you need any assistance, our support team is here to help.\n\n" +
-                        "Wishing you great success ahead!\n\n" +
-                        "Best regards,\n" +
+                        "Welcome to JobPortal!\n\n" +
+                        "You’ve successfully registered and we’re excited to have you on board.\n\n" +
+                        "Whether you're here to discover great job opportunities or to find top talent for your organization, you're in the right place.\n\n" +
+                        "Our platform connects ambitious professionals with companies that value talent.\n\n" +
+                        "If you have any questions or need support, feel free to reach out anytime.\n\n" +
+                        "Wishing you a successful journey ahead!\n\n" +
+                        "Warm regards,\n" +
                         "The JobPortal Team"
         );
         emailSender.send(message);

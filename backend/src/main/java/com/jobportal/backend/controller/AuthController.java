@@ -60,7 +60,7 @@ public class AuthController {
                     "name", user.getName(),
                     "role", user.getRole(),
                             "id",user.getId(),
-                            "bio", user.getBio()  
+                            "bio", user.getBio() == null ? "" : user.getBio()
                 )
             )
         ));
