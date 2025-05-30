@@ -2,6 +2,7 @@
 
 import { api } from "@/lib/api"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 import type React from "react"
 
 import { createContext, useContext, useState, useEffect } from "react"
@@ -29,6 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter() 
+  const { toast } = useToast()
 
   useEffect(() => {
     // Check if user is logged in
@@ -110,6 +112,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("user")
     setUser(null)
     router.push("/")
+    toast({
+      title: "Logged out",
+      description: "You have been logged out successfully.",
+      variant: "success"
+    })
+  
   }
 
   const updateUserProfile = async (data: Partial<User>) => {

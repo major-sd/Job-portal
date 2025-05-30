@@ -106,7 +106,11 @@ export default function JobsPage() {
         </div>
 
         <div>
-          <JobList  filterParams={filterParams} limit={500}/>
+          {Array.isArray(jobs) && jobs.length === 0 && filterParams ? (
+            <div className="text-center text-muted-foreground py-10 text-lg">No search results found</div>
+          ) : (
+            <JobList filterParams={filterParams} limit={500} />
+          )}
         </div>
       </div>
     </div>

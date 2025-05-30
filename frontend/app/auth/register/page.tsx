@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 import { api } from "@/lib/api"
 
@@ -47,11 +47,13 @@ export default function RegisterPage() {
       toast({
         title: "Registration successful",
         description: "Your account has been created. Please log in.",
+        variant: "success"
       })
       router.push("/auth/login")
     } catch (error) {
+      console.log("Registration error:", error);
       toast({
-        title: "Registration failed",
+        title: error.message || "Registration failed",
         description: "There was an error creating your account. Please try again.",
         variant: "destructive",
       })
@@ -84,7 +86,9 @@ export default function RegisterPage() {
                 required
               />
             </div>
-            <div className="relative">
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative flex items-center">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -96,12 +100,13 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  className="absolute right-2 inset-y-0 flex items-center text-muted-foreground"
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
               <Input

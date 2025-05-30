@@ -256,11 +256,13 @@ export default function CompanyDashboard() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="location">Location</Label>
-                    <LocationCombobox 
-                      value={location} 
-                      onChange={setLocation} 
-                      placeholder="Location"
-                    />
+                      <div className="max-h-40 overflow-y-auto">
+                        <LocationCombobox 
+                          value={location} 
+                          onChange={setLocation} 
+                          placeholder="Location"
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="salaryRange">Salary Range</Label>

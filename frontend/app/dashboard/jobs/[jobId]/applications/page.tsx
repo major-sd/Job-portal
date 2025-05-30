@@ -404,7 +404,7 @@ export default function JobApplicationsPage({ params }: { params: { jobId: strin
   if (applications.length === 0) {
     return (
       <div className="container mx-auto py-10 px-5">
-        <h1 className="text-2xl font-bold mb-6">No applications found</h1>
+        <h1 className="text-2xl font-bold mb-6">No applications found....</h1>
       </div>
     )
   }

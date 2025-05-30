@@ -103,7 +103,7 @@ export default function Home() {
 
       <section className="container px-4 md:px-6 py-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold tracking-tight">{!filterParams ? "Featured Jobs" : "Search Results"}</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{!filterParams ? "Featured Jobs" : "Top Search Results"}</h2>
           {user?.role != 'COMPANY' && <Link href="/jobs">
             <Button variant="outline">View All Jobs</Button>
           </Link>}

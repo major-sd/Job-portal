@@ -29,7 +29,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Validated @RequestBody RegisterRequest req) {
         if (userRepo.findByEmail(req.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email is already in use");
+            return ResponseEntity.badRequest().body(Collections.singletonMap("message", "Email already exists"));
         }
         User user = new User(
                 req.getName(),
@@ -49,7 +49,7 @@ public class AuthController {
                 !passwordEncoder.matches(req.getPassword(), userOpt.get().getPassword())) {
             return ResponseEntity
                     .status(401)
-                    .body(Collections.singletonMap("error", "Invalid email or password"));
+                    .body(Collections.singletonMap("message", "Invalid email or password"));
         }
         User user = userOpt.get();
         String token = jwtUtils.generateToken(user.getEmail(), user.getId(), user.getRole());
